@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Transpiled files
+dist/
+
+# Coverage
+coverage/
+
+# Dot Env Configuration
+.env
+
+# Package lock
+package-lock.json

@@ -1,0 +1,45 @@
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+
+import config from '../config';
+import { stringToBase64 } from '../utils/string';
+
+const { spike } = config;
+
+export class SpikeApi {
+    private spike: AxiosInstance;
+
+    constructor(private options: AxiosRequestConfig) {
+        this.spike = axios.create(this.options);
+    }
+
+    async getPublicKey() {
+        const response = await this.spike.get(spike.publicKeyRoute);
+        const publicKey = response.data;
+
+        return publicKey;
+    }
+
+    async getToken(options: { audience: string; clientId: string; clientSecret: string }): Promise<string> {
+        const { audience, clientId, clientSecret } = options;
+
+        const response = await this.spike.post(
+            spike.getTokenRoute,
+            {
+                grant_type: spike.tokenGrantType,
+                audience,
+            },
+            {
+                headers: {
+                    Authorization: `Basic ${stringToBase64(`${clientId}:${clientSecret}`)}`,
+                },
+            },
+        );
+
+        const token = response.data.access_token;
+        if (!token) {
+            throw new Error(`No token in Spike response`);
+        }
+
+        return token;
+    }
+}
