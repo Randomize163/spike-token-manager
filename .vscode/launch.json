@@ -7,6 +7,16 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Launch Example",
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/src/examples/index.ts",
+      "runtimeArgs": ["--async-stack-traces"],
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Jest All",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": ["--runInBand"],
@@ -30,15 +40,5 @@
         "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
     },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Launch Program",
-      "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/examples/index.ts",
-      "runtimeArgs": ["--async-stack-traces"],
-      "preLaunchTask": "tsc: build - tsconfig.json",
-      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
-    }
   ]
 }

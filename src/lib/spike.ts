@@ -1,4 +1,3 @@
-import * as pRetry from 'p-retry';
 import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import { once } from 'events';
@@ -6,24 +5,11 @@ import assert from 'assert';
 import * as fs from 'fs';
 import { SpikeApi } from './spike-api';
 import { trycatchSync } from '../utils';
-
-export interface ISpikeOptions {
-    spike: {
-        url: string;
-        clientId: string;
-        clientSecret: string;
-        tokenAudience: string;
-        publicKeyFullPath?: string;
-    };
-    redis?: {
-        uri: string;
-        tokenKeyName: string;
-    };
-    retry?: pRetry.Options;
-    expirationOffset?: number;
-}
+import { ISpikeOptions } from './interfaces';
+import { validateConfig } from './validations';
 
 export class Spike {
+    private options: ISpikeOptions;
     private redis?: Redis.Redis;
 
     private spikeApi: SpikeApi;
@@ -31,16 +17,24 @@ export class Spike {
     private spikePublicKey: string;
     private spikeToken?: string;
 
-    constructor(private options: ISpikeOptions) {
-        // validate options and add default for expirationOffset
+    constructor(options: ISpikeOptions) {
+        this.options = validateConfig(options);
 
-        const { spike } = this.options;
+        const { spike, redis } = this.options;
 
         this.spikeApi = new SpikeApi({ baseURL: spike.url });
 
-        if (this.options.redis) {
-            this.redis = new Redis(this.options.redis.uri);
+        if (redis) {
+            this.createRedis();
         }
+    }
+
+    createRedis() {
+        assert(this.options.redis);
+
+        const { uri, tokenKeyName, ...redisOptions } = this.options.redis;
+
+        this.redis = new Redis(uri, redisOptions);
     }
 
     async initialize(): Promise<void> {
@@ -100,14 +94,14 @@ export class Spike {
     private isTokenValid(token: string): boolean {
         assert(this.spikePublicKey);
 
-        const { spike, expirationOffset } = this.options;
+        const { spike, token: tokenOptions } = this.options;
 
         const verifyOptions: jwt.VerifyOptions = {
             audience: spike.tokenAudience,
         };
 
-        if (expirationOffset) {
-            verifyOptions.clockTimestamp = (Date.now() - expirationOffset) / 1000;
+        if (tokenOptions?.expirationOffset) {
+            verifyOptions.clockTimestamp = (Date.now() - tokenOptions.expirationOffset) / 1000;
         }
 
         const { err } = trycatchSync(() => jwt.verify(token, this.spikePublicKey, verifyOptions));
