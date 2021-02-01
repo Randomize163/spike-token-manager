@@ -1,9 +1,14 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-
 import config from '../config';
 import { stringToBase64 } from '../utils/string';
 
 const { spike } = config;
+
+export interface IGetTokenOptions {
+    audience: string;
+    clientId: string;
+    clientSecret: string;
+}
 
 export class SpikeApi {
     private spike: AxiosInstance;
@@ -19,7 +24,7 @@ export class SpikeApi {
         return publicKey;
     }
 
-    async getToken(options: { audience: string; clientId: string; clientSecret: string }): Promise<string> {
+    async getToken(options: IGetTokenOptions): Promise<string> {
         const { audience, clientId, clientSecret } = options;
 
         const response = await this.spike.post(

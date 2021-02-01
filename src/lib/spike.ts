@@ -1,72 +1,72 @@
+import pRetry from 'p-retry';
 import Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import { once } from 'events';
 import assert from 'assert';
 import * as fs from 'fs';
-import { SpikeApi } from './spike-api';
-import { trycatchSync } from '../utils';
-import { ISpikeOptions } from './interfaces';
-import { validateConfig } from './validations';
+import { AxiosError } from 'axios';
+import { IGetTokenOptions, SpikeApi } from './spike-api';
+import { stringify, trycatch, trycatchSync } from '../utils';
+import { ILogger, ISpikeOptions, IValidatedSpikeOptions } from './interfaces';
+import { validateOptions } from './validations';
 
 export class Spike {
-    private options: ISpikeOptions;
+    private options: IValidatedSpikeOptions;
+
+    private logger: ILogger;
+
     private redis?: Redis.Redis;
+    private redisKey: string;
 
     private spikeApi: SpikeApi;
 
     private spikePublicKey: string;
-    private spikeToken?: string;
+    private spikeTokens: Map<string, string>;
 
     constructor(options: ISpikeOptions) {
-        this.options = validateConfig(options);
+        this.options = validateOptions(options);
 
-        const { spike, redis } = this.options;
+        const { spike, redis, logger } = this.options;
 
+        this.logger = logger;
         this.spikeApi = new SpikeApi({ baseURL: spike.url });
 
         if (redis) {
             this.createRedis();
+            this.redisKey = this.transformClientIdToRedisKey(spike.clientId);
         }
     }
 
-    createRedis() {
-        assert(this.options.redis);
-
-        const { uri, tokenKeyName, ...redisOptions } = this.options.redis;
-
-        this.redis = new Redis(uri, redisOptions);
-    }
-
     async initialize(): Promise<void> {
+        this.logger.debug(`[Spike] Initializing using configuration: ${stringify(this.options)}`);
+
         if (this.redis) {
-            await once(this.redis, 'ready');
+            await this.initializeRedis();
         }
 
         await this.updatePublicKey();
 
-        await this.getToken();
+        this.logger.info(`[Spike] Initialized successfully`);
     }
 
-    async updatePublicKey() {
-        const { publicKeyFullPath } = this.options.spike;
+    private async initializeRedis() {
+        assert(this.redis);
 
-        if (publicKeyFullPath) {
-            this.spikePublicKey = await fs.promises.readFile(publicKeyFullPath, { encoding: 'utf8' });
-        } else {
-            this.spikePublicKey = await this.spikeApi.getPublicKey();
-        }
+        await once(this.redis, 'ready');
+
+        this.logger.debug('[Spike] Connected to redis');
     }
 
-    async getToken(): Promise<string> {
-        const token = await this.getCurrentToken();
+    async getToken(audience: string): Promise<string> {
+        const token = await this.getCurrentToken(audience);
 
         if (token && this.isTokenValid(token)) {
             return token;
         }
 
-        await this.updateToken();
+        await this.updateToken(audience);
 
-        const newToken = await this.getCurrentToken();
+        const newToken = await this.getCurrentToken(audience);
 
         assert(newToken);
         assert(this.isTokenValid(newToken));
@@ -74,74 +74,104 @@ export class Spike {
         return newToken;
     }
 
-    private async getCurrentToken() {
-        if (!this.redis) {
-            return this.spikeToken;
-        }
-
-        return this.getTokenFromRedis();
+    isTokenValid(token: string, audience?: string): boolean {
+        const { err } = trycatchSync(() => this.validateToken(token, audience));
+        return !err;
     }
 
-    private getTokenFromRedis() {
-        const { redis } = this.options;
-
-        assert(redis);
-        assert(this.redis);
-
-        return this.redis.get(redis.tokenKeyName);
-    }
-
-    private isTokenValid(token: string): boolean {
+    validateToken(token: string, audience?: string) {
         assert(this.spikePublicKey);
 
-        const { spike, token: tokenOptions } = this.options;
+        const { token: tokenOptions } = this.options;
 
         const verifyOptions: jwt.VerifyOptions = {
-            audience: spike.tokenAudience,
+            audience,
         };
 
         if (tokenOptions?.expirationOffset) {
             verifyOptions.clockTimestamp = (Date.now() - tokenOptions.expirationOffset) / 1000;
         }
 
-        const { err } = trycatchSync(() => jwt.verify(token, this.spikePublicKey, verifyOptions));
-        if (err) {
-            // TODO: add more handling and check result
-            return false;
-        }
-
-        return true;
+        return jwt.verify(token, this.spikePublicKey, verifyOptions);
     }
 
-    private async updateToken() {
+    private async updatePublicKey() {
+        const { publicKeyFullPath } = this.options.spike;
+
+        if (publicKeyFullPath) {
+            this.spikePublicKey = await fs.promises.readFile(publicKeyFullPath, { encoding: 'utf8' });
+        } else {
+            this.spikePublicKey = await this.getPublicKeyHelper();
+        }
+    }
+
+    private createRedis() {
+        assert(this.options.redis);
+
+        const { uri, tokenKeyPrefix, ...redisOptions } = this.options.redis;
+
+        this.redis = new Redis(uri, redisOptions);
+    }
+
+    private async getCurrentToken(audience: string) {
+        if (!this.redis) {
+            return this.spikeTokens.get(audience);
+        }
+
+        return this.getTokenFromRedis(audience);
+    }
+
+    private transformClientIdToRedisKey(clientId: string) {
+        const { redis } = this.options;
+        assert(redis);
+
+        return `${redis.tokenKeyPrefix}${clientId}`;
+    }
+
+    private getTokenFromRedis(audience: string) {
+        const { redis } = this.options;
+
+        assert(redis);
+        assert(this.redis);
+
+        return this.redis.hget(this.redisKey, audience);
+    }
+
+    private async updateToken(audience: string) {
         const {
-            spike: { clientId, clientSecret, tokenAudience },
+            spike: { clientId, clientSecret },
         } = this.options;
 
-        const getTokenOptions = {
+        const getTokenOptions: IGetTokenOptions = {
             clientId,
             clientSecret,
-            audience: tokenAudience,
+            audience,
         };
 
-        const token = await this.spikeApi.getToken(getTokenOptions);
+        this.logger.debug(`[Spike] Updating token for audience: ${audience}`);
+
+        const token = await this.getTokenHelper(getTokenOptions);
         if (this.isTokenValid(token)) {
-            await this.saveToken(token);
+            await this.saveToken(token, audience);
             return;
         }
+
+        this.logger.warn(`[Spike] Token for audience ${audience} received from Spike is not valid. Retry after updating public key.`);
 
         await this.updatePublicKey();
         if (this.isTokenValid(token)) {
-            await this.saveToken(token);
+            await this.saveToken(token, audience);
             return;
         }
 
-        throw new Error(`Received token is not valid according to both old and updated public keys`);
+        this.logger.error(`[Spike] Token for audience ${audience} received from Spike is not valid according to both old and updated public keys`);
+
+        throw new Error(`Received Spike token is not valid according to both old and updated public keys`);
     }
 
-    private async saveToken(token: string) {
+    private async saveToken(token: string, audience: string) {
         if (!this.redis) {
-            this.spikeToken = token;
+            this.spikeTokens.set(audience, token);
             return;
         }
 
@@ -149,6 +179,46 @@ export class Spike {
 
         assert(redis);
 
-        await this.redis.set(redis.tokenKeyName, token);
+        await this.redis.hset(this.redisKey, audience, token);
+    }
+
+    private getTokenHelper(getTokenOptions: IGetTokenOptions): Promise<string> {
+        return this.spikeRequestWithRetryHelper(() => this.spikeApi.getToken(getTokenOptions));
+    }
+
+    private getPublicKeyHelper(): Promise<string> {
+        return this.spikeRequestWithRetryHelper(() => this.spikeApi.getPublicKey());
+    }
+
+    private async spikeRequestWithRetryHelper(doRequest: Function) {
+        return pRetry(() => Spike.spikeRequestHelper(doRequest), {
+            ...this.options.spike.retryOptions,
+            onFailedAttempt: (err) => this.handleSpikeError(err),
+        });
+    }
+
+    private static async spikeRequestHelper(doRequest: Function) {
+        const { result, err } = await trycatch(doRequest);
+        if (!err) {
+            return result;
+        }
+
+        const axiosError = err as AxiosError;
+
+        const spikeResponseAbortStatuses = [400, 401];
+
+        if (axiosError.isAxiosError && axiosError.response && spikeResponseAbortStatuses.includes(axiosError.response.status)) {
+            throw new pRetry.AbortError(err);
+        }
+
+        throw err;
+    }
+
+    private handleSpikeError(error: pRetry.FailedAttemptError) {
+        const { attemptNumber, retriesLeft } = error;
+
+        const retryCount = attemptNumber + retriesLeft;
+
+        this.logger.warn(`[Spike] Request to spike (${attemptNumber}/${retryCount}) failed with error: ${stringify(error)}`);
     }
 }
