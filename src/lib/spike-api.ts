@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import assert from 'assert';
 import config from '../config';
 import { stringToBase64 } from '../utils/string';
 
@@ -41,9 +42,7 @@ export class SpikeApi {
         );
 
         const token = response.data.access_token;
-        if (!token) {
-            throw new Error(`No token in Spike response`);
-        }
+        assert(token, `No token in Spike response`);
 
         return token;
     }

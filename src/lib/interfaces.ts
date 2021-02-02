@@ -32,3 +32,14 @@ export interface ISpikeOptions {
 }
 
 export type IValidatedSpikeOptions = ISpikeOptions & { logger: ILogger };
+
+export interface ISpikeTokenParsed {
+    aud: string;
+    sub: string;
+    scope: string[];
+    clientId: string;
+    clientName: string;
+    iat: number;
+    exp: number;
+    iss: string;
+}

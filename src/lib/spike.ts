@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import { AxiosError } from 'axios';
 import { IGetTokenOptions, SpikeApi } from './spike-api';
 import { stringify, trycatch, trycatchSync } from '../utils';
-import { ILogger, ISpikeOptions, IValidatedSpikeOptions } from './interfaces';
+import { ILogger, ISpikeOptions, ISpikeTokenParsed, IValidatedSpikeOptions } from './interfaces';
 import { validateOptions } from './validations';
 
 export class Spike {
@@ -21,7 +21,7 @@ export class Spike {
     private spikeApi: SpikeApi;
 
     private spikePublicKey: string;
-    private spikeTokens: Map<string, string>;
+    private spikeTokens?: Map<string, string>;
 
     constructor(options: ISpikeOptions) {
         this.options = validateOptions(options);
@@ -34,6 +34,8 @@ export class Spike {
         if (redis) {
             this.createRedis();
             this.redisKey = this.transformClientIdToRedisKey(spike.clientId);
+        } else {
+            this.spikeTokens = new Map();
         }
     }
 
@@ -49,18 +51,18 @@ export class Spike {
         this.logger.info(`[Spike] Initialized successfully`);
     }
 
-    private async initializeRedis() {
-        assert(this.redis);
+    close() {
+        if (this.redis) {
+            this.redis.disconnect();
+        }
 
-        await once(this.redis, 'ready');
-
-        this.logger.debug('[Spike] Connected to redis');
+        this.logger.info(`[Spike] Closed successfully`);
     }
 
     async getToken(audience: string): Promise<string> {
         const token = await this.getCurrentToken(audience);
 
-        if (token && this.isTokenValid(token)) {
+        if (token && this.isTokenValid(token, audience)) {
             return token;
         }
 
@@ -69,7 +71,7 @@ export class Spike {
         const newToken = await this.getCurrentToken(audience);
 
         assert(newToken);
-        assert(this.isTokenValid(newToken));
+        assert(this.isTokenValid(newToken, audience));
 
         return newToken;
     }
@@ -79,7 +81,7 @@ export class Spike {
         return !err;
     }
 
-    validateToken(token: string, audience?: string) {
+    private validateToken(token: string, audience?: string): ISpikeTokenParsed {
         assert(this.spikePublicKey);
 
         const { token: tokenOptions } = this.options;
@@ -92,7 +94,15 @@ export class Spike {
             verifyOptions.clockTimestamp = (Date.now() - tokenOptions.expirationOffset) / 1000;
         }
 
-        return jwt.verify(token, this.spikePublicKey, verifyOptions);
+        return jwt.verify(token, this.spikePublicKey, verifyOptions) as ISpikeTokenParsed;
+    }
+
+    private async initializeRedis() {
+        assert(this.redis);
+
+        await once(this.redis, 'ready');
+
+        this.logger.debug('[Spike] Connected to redis');
     }
 
     private async updatePublicKey() {
@@ -115,6 +125,7 @@ export class Spike {
 
     private async getCurrentToken(audience: string) {
         if (!this.redis) {
+            assert(this.spikeTokens);
             return this.spikeTokens.get(audience);
         }
 
@@ -151,7 +162,7 @@ export class Spike {
         this.logger.debug(`[Spike] Updating token for audience: ${audience}`);
 
         const token = await this.getTokenHelper(getTokenOptions);
-        if (this.isTokenValid(token)) {
+        if (this.isTokenValid(token, audience)) {
             await this.saveToken(token, audience);
             return;
         }
@@ -159,7 +170,7 @@ export class Spike {
         this.logger.warn(`[Spike] Token for audience ${audience} received from Spike is not valid. Retry after updating public key.`);
 
         await this.updatePublicKey();
-        if (this.isTokenValid(token)) {
+        if (this.isTokenValid(token, audience)) {
             await this.saveToken(token, audience);
             return;
         }
@@ -171,6 +182,7 @@ export class Spike {
 
     private async saveToken(token: string, audience: string) {
         if (!this.redis) {
+            assert(this.spikeTokens);
             this.spikeTokens.set(audience, token);
             return;
         }
@@ -205,7 +217,7 @@ export class Spike {
 
         const axiosError = err as AxiosError;
 
-        const spikeResponseAbortStatuses = [400, 401];
+        const spikeResponseAbortStatuses = [400, 401, 429];
 
         if (axiosError.isAxiosError && axiosError.response && spikeResponseAbortStatuses.includes(axiosError.response.status)) {
             throw new pRetry.AbortError(err);
