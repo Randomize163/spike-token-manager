@@ -6,7 +6,8 @@ import * as jwt from 'jsonwebtoken';
 import { Spike } from '../lib';
 import { IGetTokenOptions, SpikeApi } from '../lib/spike-api';
 import config from '../config';
-import { ILogger, IRedisOptions } from '../lib/interfaces';
+import { ILogger, IRedisOptions, ISpikeOptions } from '../lib/interfaces';
+import { FakeAxiosError } from './axios';
 
 const {
     test: { spike: spikeConfig },
@@ -113,8 +114,9 @@ describe('Spike class tests', () => {
         [{ useRedis: false, usePublicKey: 'old' }],
         [{ useRedis: false, usePublicKey: 'new' }],
         [{ useRedis: false, usePublicKey: 'none' }],
-    ])('With options: %j', (testConfig) => {
-        const { useRedis, usePublicKey } = testConfig;
+        [{ useRedis: false, usePublicKey: 'none', expirationOffset: -60 * 1000 }],
+    ])('With options: %j', (testConfig: { useRedis: boolean; usePublicKey: string; expirationOffset?: number }) => {
+        const { useRedis, usePublicKey, expirationOffset } = testConfig;
 
         beforeEach(async () => {
             if (useRedis) {
@@ -135,7 +137,7 @@ describe('Spike class tests', () => {
 
             const { url, clientId, clientSecret } = spikeConfig;
 
-            spike = new Spike({
+            const spikeOptions: ISpikeOptions = {
                 spike: {
                     url,
                     clientId,
@@ -144,7 +146,13 @@ describe('Spike class tests', () => {
                 },
                 redis: useRedis ? redisOptions : undefined,
                 logger: silentLogger,
-            });
+            };
+
+            if (expirationOffset) {
+                spikeOptions.token = { expirationOffset };
+            }
+
+            spike = new Spike(spikeOptions);
 
             await spike.initialize();
         });
@@ -154,15 +162,17 @@ describe('Spike class tests', () => {
         });
 
         describe('Spike.getToken() tests', () => {
-            it('should get token', async () => {
-                if (usePublicKey === 'old') {
+            if (usePublicKey === 'old') {
+                it('should fail to get token for old public key', async () => {
                     await expect(() => spike.getToken(spikeConfig.audience)).rejects.toThrow(
                         `Received Spike token is not valid according to both old and updated public keys`,
                     );
+                });
 
-                    return;
-                }
+                return;
+            }
 
+            it('should get token', async () => {
                 const firstToken = await spike.getToken(spikeConfig.audience);
                 expect(firstToken).toBe(lastTokenFromSpike);
 
@@ -175,8 +185,34 @@ describe('Spike class tests', () => {
 
                 expect(getTokenMock.mock.calls.length).toBe(1);
             });
-        });
 
-        describe('Spike.isTokenValid() tests', () => {});
+            it('should retry to access spike', async () => {
+                getTokenMock.mockImplementationOnce(() => {
+                    throw new FakeAxiosError('Fake axios timeout', 'ETIMEOUT');
+                });
+
+                const token = await spike.getToken(spikeConfig.audience);
+                expect(token).toEqual(lastTokenFromSpike);
+            });
+
+            it.each([[400], [401], [429]])('should abort retrying for status %d', async (status: number) => {
+                getTokenMock.mockImplementationOnce(() => {
+                    throw new FakeAxiosError('Fake axios error', 'ERROR', status);
+                });
+
+                await expect(() => spike.getToken(spikeConfig.audience)).rejects.toThrowError(FakeAxiosError);
+            });
+
+            if (usePublicKey === 'none') {
+                it('should handle public key update at spike server', async () => {
+                    getPublicKeyMock.mockImplementationOnce(async () => {
+                        return oldKeys.publicKey;
+                    });
+
+                    const token = await spike.getToken(spikeConfig.audience);
+                    expect(token).toEqual(lastTokenFromSpike);
+                });
+            }
+        });
     });
 });
