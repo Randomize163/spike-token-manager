@@ -1,4 +1,5 @@
 import * as Joi from 'joi';
+import config from '../config';
 
 import { ISpikeOptions, IValidatedSpikeOptions } from './interfaces';
 
@@ -21,7 +22,7 @@ export const spikeConfigSchema = Joi.object({
 });
 
 export const tokenConfigSchema = Joi.object({
-    expirationOffset: Joi.number().default(-20 * 1000),
+    expirationOffset: Joi.number().default(config.jwt.expirationOffset),
 });
 
 export const ioredisConfigSchema = Joi.object({
