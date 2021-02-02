@@ -1,4 +1,4 @@
-import { trycatch, stringify } from '../../utils';
+import { trycatch, stringify, trycatchSync } from '../../utils';
 
 describe('trycatch tests', () => {
     const mockFn = jest.fn();
@@ -37,6 +37,55 @@ describe('trycatch tests', () => {
         mockFn.mockResolvedValue(expectedResult);
 
         const { result, err } = await trycatch(mockFn, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
+        expect(err).toBeUndefined();
+        expect(result).toEqual(expectedResult);
+
+        expect(mockFn.mock.calls[0].length).toEqual(10);
+        mockFn.mock.calls[0].forEach((parameter, index) => {
+            expect(parameter).toEqual(index);
+        });
+    });
+});
+
+describe('trycatchSync tests', () => {
+    const mockFn = jest.fn();
+    const expectedResult = 'some value';
+    const expectedError = new Error('some error');
+
+    beforeEach(() => {
+        mockFn.mockReset();
+    });
+
+    it('should return result', () => {
+        mockFn.mockReturnValueOnce(expectedResult);
+
+        const { result, err } = trycatchSync(mockFn);
+        expect(err).toBeUndefined();
+        expect(result).toEqual(expectedResult);
+    });
+
+    it('should catch and return error', () => {
+        mockFn.mockImplementationOnce(() => {
+            throw expectedError;
+        });
+
+        const { result, err } = trycatchSync(mockFn);
+        expect(result).toBeUndefined();
+        expect(err).toEqual(expectedError);
+    });
+
+    it('should work with async functions', () => {
+        mockFn.mockReturnValueOnce(expectedResult);
+
+        const { result, err } = trycatchSync(mockFn);
+        expect(err).toBeUndefined();
+        expect(result).toEqual(expectedResult);
+    });
+
+    it('should pass all params to a function', () => {
+        mockFn.mockReturnValueOnce(expectedResult);
+
+        const { result, err } = trycatchSync(mockFn, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9);
         expect(err).toBeUndefined();
         expect(result).toEqual(expectedResult);
 
