@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 export class FakeAxiosError extends Error implements AxiosError {

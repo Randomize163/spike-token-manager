@@ -40,7 +40,7 @@ export class Spike {
     }
 
     async initialize(): Promise<void> {
-        this.logger.debug(`[Spike] Initializing using configuration: ${stringify(this.options)}`);
+        this.logger.debug(`[Spike] Initializing using configuration: ${this.stringifyOptions()}`);
 
         if (this.redis) {
             await this.initializeRedis();
@@ -80,6 +80,12 @@ export class Spike {
         const { err } = trycatchSync(() => this.validateToken(token, audience));
         return !err;
     }
+
+    private stringifyOptions = () => {
+        const { logger, ...restOfOptions } = this.options;
+
+        return stringify(restOfOptions);
+    };
 
     private validateToken(token: string, audience?: string): ISpikeTokenParsed {
         assert(this.spikePublicKey);

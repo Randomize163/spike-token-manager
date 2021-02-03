@@ -1,11 +1,9 @@
-import { mocked } from 'ts-jest/utils';
 import Redis from 'ioredis';
-import * as fs from 'fs';
-import * as crypto from 'crypto';
-import * as jwt from 'jsonwebtoken';
+import { mocked } from 'ts-jest/dist/utils/testing';
+import { createSpikeMockImplementation } from './spikeApiMock';
 import { Spike } from '../lib';
-import { IGetTokenOptions, SpikeApi } from '../lib/spike-api';
 import config from '../config';
+import { SpikeApi } from '../lib/spike-api';
 import { ILogger, IRedisOptions, ISpikeOptions } from '../lib/interfaces';
 import { FakeAxiosError } from './axios';
 
@@ -13,82 +11,14 @@ const {
     test: { spike: spikeConfig },
 } = config;
 
-const newPublicKeyPath = './src/tests/static/publickey.pem';
-const oldPublicKeyPath = './src/tests/static/publickey_old.pem';
-
-const generateKeysPair = () => {
-    const keys = crypto.generateKeyPairSync('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem',
-        },
-        privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem',
-            cipher: 'aes-256-cbc',
-            passphrase: 'passphrase',
-        },
-    });
-
-    return keys;
-};
-
-const oldKeys = generateKeysPair();
-const keys = generateKeysPair();
-
-fs.writeFileSync(newPublicKeyPath, keys.publicKey);
-fs.writeFileSync(oldPublicKeyPath, oldKeys.publicKey);
-
-const getPublicKeyPath = (type: string) => {
-    switch (type) {
-        case 'old':
-            return oldPublicKeyPath;
-
-        case 'new':
-            return newPublicKeyPath;
-
-        case 'none':
-            return undefined;
-
-        default:
-            throw new Error(`Unknown key type`);
-    }
-};
-
-let lastTokenFromSpike: string;
-
-const getPublicKeyMock = jest.fn().mockImplementation(async () => {
-    return keys.publicKey;
-});
-
-const getTokenMock = jest.fn().mockImplementation((options: IGetTokenOptions) => {
-    const payload = {
-        clientId: options.clientId,
-        clientName: 'testClientName',
-        scope: ['get', 'set'],
-    };
-
-    const token = jwt.sign(
-        payload,
-        { key: keys.privateKey, passphrase: 'passphrase' },
-        { audience: options.audience, expiresIn: '1h', algorithm: 'RS256' },
-    );
-
-    lastTokenFromSpike = token;
-
-    return token;
-});
-
 jest.mock('../lib/spike-api');
 
-const mockedSpikeApi = mocked(SpikeApi, true);
-mockedSpikeApi.mockImplementation(() => {
-    return ({
-        getToken: getTokenMock,
-        getPublicKey: getPublicKeyMock,
-    } as unknown) as SpikeApi;
-});
+const mockedSpikeApi = mocked(SpikeApi);
+
+const { getKeys, getLastTokenFromSpike, getPublicKeyMock, getPublicKeyPath, getTokenMock, removeTemporaryFiles } = createSpikeMockImplementation(
+    mockedSpikeApi,
+    'spike',
+);
 
 describe('Spike class tests', () => {
     let spike: Spike;
@@ -103,8 +33,7 @@ describe('Spike class tests', () => {
         await redis.flushdb();
         redis.disconnect();
 
-        fs.unlinkSync(oldPublicKeyPath);
-        fs.unlinkSync(newPublicKeyPath);
+        removeTemporaryFiles();
     });
 
     describe.each([
@@ -174,7 +103,7 @@ describe('Spike class tests', () => {
 
             it('should get token', async () => {
                 const firstToken = await spike.getToken(spikeConfig.audience);
-                expect(firstToken).toBe(lastTokenFromSpike);
+                expect(firstToken).toBe(getLastTokenFromSpike());
 
                 expect(getTokenMock.mock.calls.length).toBe(1);
 
@@ -192,7 +121,7 @@ describe('Spike class tests', () => {
                 });
 
                 const token = await spike.getToken(spikeConfig.audience);
-                expect(token).toEqual(lastTokenFromSpike);
+                expect(token).toEqual(getLastTokenFromSpike());
             });
 
             it.each([[400], [401], [429]])('should abort retrying for status %d', async (status: number) => {
@@ -206,11 +135,11 @@ describe('Spike class tests', () => {
             if (usePublicKey === 'none') {
                 it('should handle public key update at spike server', async () => {
                     getPublicKeyMock.mockImplementationOnce(async () => {
-                        return oldKeys.publicKey;
+                        return getKeys('old').publicKey;
                     });
 
                     const token = await spike.getToken(spikeConfig.audience);
-                    expect(token).toEqual(lastTokenFromSpike);
+                    expect(token).toEqual(getLastTokenFromSpike());
                 });
             }
         });
