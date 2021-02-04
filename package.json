@@ -1,8 +1,14 @@
 {
-  "name": "@rand0m1ze/spike",
+  "name": "spike-token-manager",
   "version": "0.0.1",
   "description": "Spike interface for JavaScript and TypeScript",
-  "keywords": [],
+  "keywords": [
+    "spike",
+    "token",
+    "manager",
+    "get token",
+    "redis"
+  ],
   "author": "Alexander Gurevich",
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
