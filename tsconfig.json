@@ -19,7 +19,6 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,
-    "esModuleInterop": true,
     "outDir": "./dist/"
   },
   "include": ["src/**/*"]

@@ -1,8 +1,8 @@
-import Redis from 'ioredis';
+import * as Redis from 'ioredis';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { createSpikeMockImplementation } from './spikeApiMock';
 import { SpikeApi } from '../lib/spike-api';
-import getTokenCreator from '../lib/index';
+import * as getTokenCreator from '../lib/depricated';
 
 const redisUri = 'redis://localhost';
 

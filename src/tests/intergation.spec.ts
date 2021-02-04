@@ -9,6 +9,8 @@ const {
 } = config;
 
 describe('integration tests', () => {
+    jest.setTimeout(60 * 1000);
+
     const spikeApi = new SpikeApi({
         baseURL: spike.url,
     });

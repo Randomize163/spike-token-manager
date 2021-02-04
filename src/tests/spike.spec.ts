@@ -1,4 +1,4 @@
-import Redis from 'ioredis';
+import * as Redis from 'ioredis';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { createSpikeMockImplementation } from './spikeApiMock';
 import { Spike } from '../lib';

@@ -1,7 +1,7 @@
-import Redis from 'ioredis';
-import pRetry from 'p-retry';
+import * as Redis from 'ioredis';
+import * as pRetry from 'p-retry';
 
-export interface IRedisOptions extends Redis.RedisOptions {
+export interface IRedisOptions extends Omit<Redis.RedisOptions, 'lazyConnect'> {
     uri: string;
     tokenKeyPrefix?: string;
 }

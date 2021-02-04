@@ -1,5 +1,5 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import assert from 'assert';
+import * as assert from 'assert';
 import config from '../config';
 import { stringToBase64 } from '../utils/string';
 

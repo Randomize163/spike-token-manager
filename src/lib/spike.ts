@@ -1,8 +1,7 @@
-import pRetry from 'p-retry';
-import Redis from 'ioredis';
+import * as pRetry from 'p-retry';
+import * as Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
-import { once } from 'events';
-import assert from 'assert';
+import * as assert from 'assert';
 import * as fs from 'fs';
 import { AxiosError } from 'axios';
 import { IGetTokenOptions, SpikeApi } from './spike-api';
@@ -106,7 +105,7 @@ export class Spike {
     private async initializeRedis() {
         assert(this.redis);
 
-        await once(this.redis, 'ready');
+        await this.redis.connect();
 
         this.logger.debug('[Spike] Connected to redis');
     }
@@ -124,7 +123,10 @@ export class Spike {
     private createRedis() {
         assert(this.options.redis);
 
-        const { uri, tokenKeyPrefix, ...redisOptions } = this.options.redis;
+        const { uri, tokenKeyPrefix, ...redisUserOptions } = this.options.redis;
+
+        // force lazyConnect to true to work correctly with initialize()
+        const redisOptions = { ...redisUserOptions, lazyConnect: true };
 
         this.redis = new Redis(uri, redisOptions);
     }

@@ -1,5 +1,6 @@
-import { getTokenCreator } from './depricated';
+import { Spike } from './spike';
 
+export * from './getTokenCreator';
 export * from './spike';
 
-export default getTokenCreator;
+export default Spike;
