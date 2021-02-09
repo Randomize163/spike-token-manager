@@ -9,6 +9,10 @@ import { stringify, trycatch, trycatchSync } from '../utils';
 import { ILogger, ISpikeOptions, ISpikeTokenParsed, IValidatedSpikeOptions } from './interfaces';
 import { validateOptions } from './validations';
 
+import config from '../config';
+
+const { spike: spikeConfig } = config;
+
 export class Spike {
     private options: IValidatedSpikeOptions;
 
@@ -105,9 +109,7 @@ export class Spike {
     private async initializeRedis() {
         assert(this.redis);
 
-        await this.redis.connect();
-
-        this.logger.debug('[Spike] Connected to redis');
+        // no need for special initialization for now
     }
 
     private async updatePublicKey() {
@@ -123,12 +125,23 @@ export class Spike {
     private createRedis() {
         assert(this.options.redis);
 
-        const { uri, tokenKeyPrefix, ...redisUserOptions } = this.options.redis;
-
-        // force lazyConnect to true to work correctly with initialize()
-        const redisOptions = { ...redisUserOptions, lazyConnect: true };
+        const { uri, tokenKeyPrefix, ...redisOptions } = this.options.redis;
 
         this.redis = new Redis(uri, redisOptions);
+
+        this.redis
+            .on('error', (error: Error) => {
+                this.logger.error(`[Spike] Got redis error: ${stringify(error)}`);
+            })
+            .on('connect', () => {
+                this.logger.info(`[Spike] Connected to Redis`);
+            })
+            .on('ready', () => {
+                this.logger.info(`[Spike] Redis is ready to receive commands`);
+            })
+            .on('reconnecting', (timeout: number) => {
+                this.logger.info(`[Spike] Redis reconnecting in ${timeout} ms`);
+            });
     }
 
     private async getCurrentToken(audience: string) {
@@ -225,7 +238,7 @@ export class Spike {
 
         const axiosError = err as AxiosError;
 
-        const spikeResponseAbortStatuses = [400, 401, 429];
+        const spikeResponseAbortStatuses = spikeConfig.responseAbortStatuses;
 
         if (axiosError.isAxiosError && axiosError.response && spikeResponseAbortStatuses.includes(axiosError.response.status)) {
             throw new pRetry.AbortError(err);

@@ -3,13 +3,15 @@ import config from '../config';
 
 import { ISpikeOptions, IValidatedSpikeOptions } from './interfaces';
 
+const { redis, jwt, spike } = config;
+
 export const retryOptionsSchema = Joi.object({
     forever: Joi.boolean().default(false),
-    maxRetryTime: Joi.number().default(Infinity),
-    retries: Joi.number().default(10),
+    maxRetryTime: Joi.number().default(spike.retryOptions.maxRetryTime),
+    retries: Joi.number().default(spike.retryOptions.retries),
     factor: Joi.number().default(2),
-    minTimeout: Joi.number().default(1000),
-    maxTimeout: Joi.number().default(Infinity),
+    minTimeout: Joi.number().default(spike.retryOptions.minTimeout),
+    maxTimeout: Joi.number().default(spike.retryOptions.maxTimeout),
     randomize: Joi.boolean().default(false),
 });
 
@@ -18,11 +20,11 @@ export const spikeConfigSchema = Joi.object({
     clientId: Joi.string().required(),
     clientSecret: Joi.string().required(),
     publicKeyFullPath: Joi.string(),
-    retryOptions: retryOptionsSchema,
+    retryOptions: retryOptionsSchema.default(),
 });
 
 export const tokenConfigSchema = Joi.object({
-    expirationOffset: Joi.number().default(config.jwt.expirationOffset),
+    expirationOffset: Joi.number().default(jwt.expirationOffset),
 });
 
 export const ioredisConfigSchema = Joi.object({
@@ -44,8 +46,10 @@ export const ioredisConfigSchema = Joi.object({
     // lazyConnect: Joi.boolean(), // Do not allow to set lazyConnect to work correctly with initialize()
     tls: Joi.object(),
     keyPrefix: Joi.string(),
-    retryStrategy: Joi.function().arity(1),
-    maxRetriesPerRequest: Joi.number(),
+    retryStrategy: Joi.function()
+        .arity(1)
+        .default(() => redis.retryStrategy),
+    maxRetriesPerRequest: Joi.number().default(redis.maxRetriesPerRequest),
     reconnectOnError: Joi.function().arity(1),
     readOnly: Joi.boolean(),
     stringNumbers: Joi.boolean(),
@@ -69,8 +73,8 @@ export const loggerSchema = Joi.object({
 
 export const mainSpikeConfigSchema = Joi.object({
     spike: spikeConfigSchema.required(),
-    redis: redisConfigSchema.optional(),
-    token: tokenConfigSchema.optional(),
+    redis: redisConfigSchema,
+    token: tokenConfigSchema.default(),
     logger: loggerSchema.default(console),
 });
 

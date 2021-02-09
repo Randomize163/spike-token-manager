@@ -14,21 +14,9 @@ const main = async () => {
             url: 'https://51.144.178.121:1337',
             clientId: '9FXuQkn7m7YNjecKufGAQV2HR_Lcu7PDNhNf31Od',
             clientSecret: 'GxE6OodYjrFNdSwe4tI3zJJ5OhbNpgMc8toWyPKJ~OfkR_f21eCDyCi8CN~l709uYBLfdiYWiF8ryjlRZ_cTap108wmSMaWXdZn5',
-            retryOptions: {
-                factor: 2.26,
-                retries: 3,
-                minTimeout: 500,
-                randomize: true,
-                maxRetryTime: 10 * 1000,
-            },
         },
         redis: {
             uri: 'redis://localhost',
-            maxRetriesPerRequest: 10,
-            retryStrategy: (times: number) => {
-                return Math.min(times * 50, 2000);
-            },
-            connectTimeout: 10000,
         },
     });
 

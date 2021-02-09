@@ -7,6 +7,22 @@ const config = {
         publicKeyRoute: env.get('SPIKE_PUBLIC_KEY_ROUTE').default('/.well-known/publickey.pem').asString(),
         getTokenRoute: env.get('SPIKE_GET_TOKEN_ROUTE').default('/oauth2/token').asString(),
         tokenGrantType: env.get('SPIKE_TOKEN_GRANT_TYPE').default('client_credentials').asString(),
+        retryOptions: {
+            maxRetryTime: env
+                .get('SPIKE_DEFAULT_MAX_RETRY_TIME')
+                .default(10 * 1000)
+                .asIntPositive(),
+            retries: env.get('SPIKE_DEFAULT_RETRIES').default(3).asIntPositive(),
+            minTimeout: env.get('SPIKE_DEFAULT_MIN_TIMEOUT').default(100).asIntPositive(),
+            maxTimeout: env.get('SPIKE_DEFAULT_MAX_TIMEOUT').default(1000).asIntPositive(),
+        },
+        responseAbortStatuses: env.get('SPIKE_RESPONSE_ABORT_STATUSES').default([400, 401, 429]).asJsonArray() as number[],
+    },
+    redis: {
+        maxRetriesPerRequest: env.get('SPIKE_DEFAULT_REDIS_MAX_RETRIES_PER_REQUEST').default(3).asIntPositive(),
+        retryStrategy: (retryCount: number) => {
+            return Math.min(retryCount * 500, 2000);
+        },
     },
     jwt: {
         expirationOffset: env
