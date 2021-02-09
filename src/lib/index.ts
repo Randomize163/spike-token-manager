@@ -1,6 +1,15 @@
-import { Spike } from './spike';
+import { getTokenCreator, IDepricatedSpikeOptions } from './getTokenCreator';
 
-export * from './getTokenCreator';
-export * from './spike';
+import { Spike as SpikeAlias } from './spike';
 
-export default Spike;
+function mainExport(options: IDepricatedSpikeOptions) {
+    return getTokenCreator(options);
+}
+
+// eslint-disable-next-line no-redeclare
+namespace mainExport {
+    export type Spike = SpikeAlias;
+    export const Spike = SpikeAlias;
+}
+
+export = mainExport;
