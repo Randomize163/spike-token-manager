@@ -7,8 +7,9 @@ import { MockedObject } from 'ts-jest/dist/utils/testing';
 import { IGetTokenOptions, SpikeApi } from '../lib/spike-api';
 
 export const createSpikeMockImplementation = (mockedSpikeApi: MockedObject<typeof SpikeApi>, publicKeyPrefix: string) => {
-    const newPublicKeyPath = `./src/tests/static/${publicKeyPrefix}publickey.pem`;
-    const oldPublicKeyPath = `./src/tests/static/${publicKeyPrefix}publickey_old.pem`;
+    const publicKeyFolderPath = `./src/tests/static`;
+    const newPublicKeyPath = `${publicKeyFolderPath}/${publicKeyPrefix}publickey.pem`;
+    const oldPublicKeyPath = `${publicKeyFolderPath}/${publicKeyPrefix}publickey_old.pem`;
 
     const generateKeysPair = () => {
         const keys = crypto.generateKeyPairSync('rsa', {
@@ -33,6 +34,7 @@ export const createSpikeMockImplementation = (mockedSpikeApi: MockedObject<typeo
 
     const getKeys = (type: 'old' | 'new') => (type === 'new' ? keys : oldKeys);
 
+    fs.mkdirSync(publicKeyFolderPath, { recursive: true });
     fs.writeFileSync(newPublicKeyPath, keys.publicKey);
     fs.writeFileSync(oldPublicKeyPath, oldKeys.publicKey);
 
