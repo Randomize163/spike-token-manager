@@ -26,6 +26,8 @@ export class Spike {
     private spikePublicKey: string;
     private spikeTokens?: Map<string, string>;
 
+    private initialized: boolean = false;
+
     constructor(options: ISpikeOptions) {
         this.options = validateOptions(options);
 
@@ -43,26 +45,46 @@ export class Spike {
     }
 
     async initialize(): Promise<void> {
+        if (this.isInitialized()) {
+            return;
+        }
+
         this.logger.debug(`[Spike] Initializing using configuration: ${this.stringifyOptions()}`);
+
+        await this.updatePublicKey();
 
         if (this.redis) {
             await this.initializeRedis();
         }
 
-        await this.updatePublicKey();
+        this.initialized = true;
 
         this.logger.info(`[Spike] Initialized successfully`);
     }
 
     close() {
+        if (!this.isInitialized()) {
+            return;
+        }
+
         if (this.redis) {
             this.redis.disconnect();
         }
 
+        this.initialized = false;
+
         this.logger.info(`[Spike] Closed successfully`);
     }
 
+    isInitialized() {
+        return this.initialized;
+    }
+
     async getToken(audience: string): Promise<string> {
+        if (!this.isInitialized()) {
+            await this.initialize();
+        }
+
         const token = await this.getCurrentToken(audience);
 
         if (token && this.isTokenValid(token, audience)) {
@@ -79,7 +101,7 @@ export class Spike {
         return newToken;
     }
 
-    isTokenValid(token: string, audience?: string): boolean {
+    private isTokenValid(token: string, audience?: string): boolean {
         const { err } = trycatchSync(() => this.validateToken(token, audience));
         return !err;
     }
@@ -97,11 +119,8 @@ export class Spike {
 
         const verifyOptions: jwt.VerifyOptions = {
             audience,
+            clockTimestamp: (Date.now() - tokenOptions.expirationOffset) / 1000,
         };
-
-        if (tokenOptions?.expirationOffset) {
-            verifyOptions.clockTimestamp = (Date.now() - tokenOptions.expirationOffset) / 1000;
-        }
 
         return jwt.verify(token, this.spikePublicKey, verifyOptions) as ISpikeTokenParsed;
     }

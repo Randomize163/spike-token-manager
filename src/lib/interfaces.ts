@@ -31,7 +31,7 @@ export interface ISpikeOptions {
     logger?: ILogger;
 }
 
-export type IValidatedSpikeOptions = ISpikeOptions & { logger: ILogger };
+export type IValidatedSpikeOptions = ISpikeOptions & { logger: ILogger; token: { expirationOffset: number } };
 
 export interface ISpikeTokenParsed {
     aud: string;

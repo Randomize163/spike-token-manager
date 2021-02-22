@@ -37,15 +37,15 @@ describe('Spike class tests', () => {
     });
 
     describe.each([
-        [{ useRedis: true, usePublicKey: 'old' }],
-        [{ useRedis: true, usePublicKey: 'new' }],
-        [{ useRedis: true, usePublicKey: 'none' }],
-        [{ useRedis: false, usePublicKey: 'old' }],
-        [{ useRedis: false, usePublicKey: 'new' }],
-        [{ useRedis: false, usePublicKey: 'none' }],
-        [{ useRedis: false, usePublicKey: 'none', expirationOffset: -60 * 1000 }],
-    ])('With options: %j', (testConfig: { useRedis: boolean; usePublicKey: string; expirationOffset?: number }) => {
-        const { useRedis, usePublicKey, expirationOffset } = testConfig;
+        [{ useRedis: true, publicKeyType: 'old' }],
+        [{ useRedis: true, publicKeyType: 'new' }],
+        [{ useRedis: true, publicKeyType: 'none' }],
+        [{ useRedis: false, publicKeyType: 'old' }],
+        [{ useRedis: false, publicKeyType: 'new' }],
+        [{ useRedis: false, publicKeyType: 'none' }],
+        [{ useRedis: false, publicKeyType: 'none', expirationOffset: -60 * 1000 }],
+    ])('With options: %j', (testConfig: { useRedis: boolean; publicKeyType: string; expirationOffset?: number }) => {
+        const { useRedis, publicKeyType, expirationOffset } = testConfig;
 
         beforeEach(async () => {
             if (useRedis) {
@@ -71,7 +71,7 @@ describe('Spike class tests', () => {
                     url,
                     clientId,
                     clientSecret,
-                    publicKeyFullPath: getPublicKeyPath(usePublicKey),
+                    publicKeyFullPath: getPublicKeyPath(publicKeyType),
                 },
                 redis: useRedis ? redisOptions : undefined,
                 logger: silentLogger,
@@ -82,16 +82,29 @@ describe('Spike class tests', () => {
             }
 
             spike = new Spike(spikeOptions);
-
-            await spike.initialize();
         });
 
         afterEach(() => {
             spike.close();
         });
 
+        describe('Spike.initialize() tests', () => {
+            it('should handle double initialize', async () => {
+                await spike.initialize();
+                await spike.initialize();
+            });
+        });
+
+        describe('Spike.close() tests', () => {
+            it('should handle double close', async () => {
+                await spike.initialize();
+                spike.close();
+                spike.close();
+            });
+        });
+
         describe('Spike.getToken() tests', () => {
-            if (usePublicKey === 'old') {
+            if (publicKeyType === 'old') {
                 it('should fail to get token for old public key', async () => {
                     await expect(() => spike.getToken(spikeConfig.audience)).rejects.toThrow(
                         `Received Spike token is not valid according to both old and updated public keys`,
@@ -132,7 +145,7 @@ describe('Spike class tests', () => {
                 await expect(() => spike.getToken(spikeConfig.audience)).rejects.toThrowError(FakeAxiosError);
             });
 
-            if (usePublicKey === 'none') {
+            if (publicKeyType === 'none') {
                 it('should handle public key update at spike server', async () => {
                     getPublicKeyMock.mockImplementationOnce(async () => {
                         return getKeys('old').publicKey;
