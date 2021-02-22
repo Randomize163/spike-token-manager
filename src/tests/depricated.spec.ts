@@ -35,10 +35,16 @@ describe('Depricated interface tests', () => {
 
     afterEach(() => {});
 
-    it.each([[{ useRedis: false }], [{ useRedis: true }]])('should getToken() with options: %j', async (options) => {
+    it.each([
+        [{ useRedis: false, retries: 3, sleepBetweenRetries: 1000 }],
+        [{ useRedis: true, retries: 3, sleepBetweenRetries: 1000 }],
+        [{ useRedis: false, retries: undefined, sleepBetweenRetries: 1000 }],
+        [{ useRedis: false, retries: 3, sleepBetweenRetries: undefined }],
+        [{ useRedis: false, retries: undefined, sleepBetweenRetries: undefined }],
+    ])('should getToken() with options: %j', async (options) => {
         jest.setTimeout(10 * 1000);
 
-        const { useRedis } = options;
+        const { useRedis, retries, sleepBetweenRetries } = options;
 
         const getToken = getTokenCreator({
             ClientId: 'clientId',
@@ -50,6 +56,8 @@ describe('Depricated interface tests', () => {
             redisHost: redisUri,
             spikePublicKeyFullPath: getPublicKeyPath('new'),
             tokenRedisKeyName: 'my-nice-prefix',
+            retries,
+            sleepBetweenRetries,
         });
 
         const firstToken = await getToken();

@@ -5,7 +5,9 @@ import { Spike } from './spike';
 
 export interface IDepricatedSpikeOptions {
     ClientId?: string;
+    clientId?: string;
     ClientSecret?: string;
+    clientSecret?: string;
     spikeURL?: string;
     tokenGrantType?: string;
     tokenAudience?: string;
@@ -13,14 +15,32 @@ export interface IDepricatedSpikeOptions {
     spikePublicKeyFullPath?: string;
     useRedis?: boolean;
     redisHost?: string;
+    retries?: number;
+    sleepBetweenRetries?: number;
 }
 
 export const getTokenCreator = (options: IDepricatedSpikeOptions) => {
-    const { spikeURL, ClientId, ClientSecret, spikePublicKeyFullPath, useRedis, redisHost, tokenRedisKeyName, tokenAudience } = options;
+    const {
+        spikeURL,
+        clientId,
+        ClientId,
+        clientSecret,
+        ClientSecret,
+        spikePublicKeyFullPath,
+        useRedis,
+        redisHost,
+        tokenRedisKeyName,
+        tokenAudience,
+        retries,
+        sleepBetweenRetries,
+    } = options;
+
+    const clientIdOption = clientId || ClientId;
+    const clientSecretOption = clientSecret || ClientSecret;
 
     assert(spikeURL, 'spikeURL is a required parameter');
-    assert(ClientId, 'ClientId is a required parameter');
-    assert(ClientSecret, 'ClientSecret is a required parameter');
+    assert(clientIdOption, 'clientId is a required parameter');
+    assert(clientSecretOption, 'clientSecret is a required parameter');
     assert(tokenAudience, 'tokenAudience is a required parameter');
 
     const spikeUrlObject = new URL(spikeURL);
@@ -28,11 +48,18 @@ export const getTokenCreator = (options: IDepricatedSpikeOptions) => {
     const spikeOptions: ISpikeOptions = {
         spike: {
             url: spikeUrlObject.origin,
-            clientId: ClientId,
-            clientSecret: ClientSecret,
+            clientId: clientIdOption,
+            clientSecret: clientSecretOption,
             publicKeyFullPath: spikePublicKeyFullPath,
         },
     };
+
+    if (retries || sleepBetweenRetries) {
+        spikeOptions.spike.retryOptions = {
+            retries,
+            minTimeout: sleepBetweenRetries,
+        };
+    }
 
     if (useRedis) {
         assert(redisHost, `redisHost is required parameter, when useRedis selected`);
@@ -45,17 +72,7 @@ export const getTokenCreator = (options: IDepricatedSpikeOptions) => {
 
     const spike = new Spike(spikeOptions);
 
-    let isInitialized = false;
-
-    const getToken = async () => {
-        if (!isInitialized) {
-            await spike.initialize();
-            isInitialized = true;
-        }
-
-        return spike.getToken(tokenAudience);
-    };
-
+    const getToken = async () => spike.getToken(tokenAudience);
     getToken.close = () => spike.close();
 
     return getToken;
