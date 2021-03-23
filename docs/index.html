@@ -1,0 +1,214 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>spike-token-manager</title>
+	<meta name="description" content="Documentation for spike-token-manager">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">spike-token-manager</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>spike-token-manager</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#spike-token-manager" id="spike-token-manager" style="color: inherit; text-decoration: none;">
+					<h1>Spike Token Manager</h1>
+				</a>
+				<p><strong>Spike Token Manager</strong> is an easy to use package for managing Spike tokens for multiple audiences and clients.</p>
+				<a href="#features" id="features" style="color: inherit; text-decoration: none;">
+					<h2>Features</h2>
+				</a>
+				<a href="#on-the-fly-spike-public-key-update" id="on-the-fly-spike-public-key-update" style="color: inherit; text-decoration: none;">
+					<h3>On the fly Spike Public Key update</h3>
+				</a>
+				<p>No need to specify a static public key. Public key is updated automatically.</p>
+				<a href="#redis-auto-reconnect-and-spike-requests-retries" id="redis-auto-reconnect-and-spike-requests-retries" style="color: inherit; text-decoration: none;">
+					<h3>Redis auto-reconnect and spike requests retries</h3>
+				</a>
+				<p><em>Spike Token Manager</em> automatically reconnects to Redis in case of failures. When Spike is unavailible <em>Spike Token Manager</em> will retry it&#39;s requests and ensure that you&#39;ll get your token.</p>
+				<a href="#configurable-custom-logger" id="configurable-custom-logger" style="color: inherit; text-decoration: none;">
+					<h3>Configurable custom logger</h3>
+				</a>
+				<p>Use logger of your choice and get all of your logs in one place.</p>
+				<a href="#compact-storage-for-redis-tokens" id="compact-storage-for-redis-tokens" style="color: inherit; text-decoration: none;">
+					<h3>Compact storage for Redis tokens</h3>
+				</a>
+				<p><em>Spike Token Manager</em> uses Redis HASH for compact storage of your tokens.</p>
+				<a href="#expiration-offset-configuration" id="expiration-offset-configuration" style="color: inherit; text-decoration: none;">
+					<h3>Expiration offset configuration</h3>
+				</a>
+				<p>When network is slow, race conditions are possible.</p>
+				<p>Example:
+					You have a token, that will expire in 10 seconds.
+				When you get a token, it is still valid, but when your request reaches the destination the token is expired and your request will fail.</p>
+				<p><em>Spike Token Manager</em> solves this issue by configuring <em>&quot;token expiration offset&quot;</em>. Your token will be renewed before it get&#39;s close to it&#39;s expiration time.</p>
+				<a href="#great-defaults-with-high-level-of-customization" id="great-defaults-with-high-level-of-customization" style="color: inherit; text-decoration: none;">
+					<h3>Great defaults with high level of customization</h3>
+				</a>
+				<p>You could configure almost everything, from complicated redis settings to exponential backoff retry options.</p>
+				<a href="#backward-compatible-with-spike-get-token" id="backward-compatible-with-spike-get-token" style="color: inherit; text-decoration: none;">
+					<h3>Backward compatible with <a href="https://www.npmjs.com/package/spike-get-token">spike-get-token</a></h3>
+				</a>
+				<p><em>Spike Token Manager</em> is backwards compatible with <a href="https://www.npmjs.com/package/spike-get-token">spike-get-token</a>.
+				You could use the same old syntax to make the transition to the new package easy.</p>
+				<pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> </span><span style="color: #0000FF">*</span><span style="color: #000000"> </span><span style="color: #AF00DB">as</span><span style="color: #000000"> </span><span style="color: #001080">getTokenCreator</span><span style="color: #000000"> </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;spike-token-manager&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">getToken</span><span style="color: #000000"> = </span><span style="color: #795E26">getTokenCreator</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">clientId:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;clientId&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">clientSecret:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;clientSecret&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">spikeURL:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://spike.url&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">tokenAudience:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;baltun&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">tokenGrantType:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;client_cridentials&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">useRedis:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">redisHost:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;redis://redis&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">spikePublicKeyFullPath:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;./publicKey.pem&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">tokenRedisKeyName:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;my-nice-prefix&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">retries:</span><span style="color: #000000"> </span><span style="color: #098658">3</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">sleepBetweenRetries:</span><span style="color: #000000"> </span><span style="color: #098658">1000</span><span style="color: #000000">,</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">firstToken</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #795E26">getToken</span><span style="color: #000000">();</span>
+</code></pre>
+				<a href="#usage-examples" id="usage-examples" style="color: inherit; text-decoration: none;">
+					<h2>Usage examples:</h2>
+				</a>
+				<a href="#usage-with-redis" id="usage-with-redis" style="color: inherit; text-decoration: none;">
+					<h3>Usage with redis</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Spike</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;spike-token-manager&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">spike</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Spike</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">spike:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://51.144.178.121:1337&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">clientId:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;clientId&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">clientSecret:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;clientSecret&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">    </span><span style="color: #001080">redis:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">uri:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;redis://localhost&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">});</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">driveToken</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">spike</span><span style="color: #000000">.</span><span style="color: #795E26">getToken</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;drive&#039;</span><span style="color: #000000">);</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">phonebookToken</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">spike</span><span style="color: #000000">.</span><span style="color: #795E26">getToken</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;phonebook&#039;</span><span style="color: #000000">);</span>
+</code></pre>
+				<a href="#usage-without-redis" id="usage-without-redis" style="color: inherit; text-decoration: none;">
+					<h3>Usage without redis</h3>
+				</a>
+				<pre><code class="language-ts"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Spike</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;spike-token-manager&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">spike</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #795E26">Spike</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">spike:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">        </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://51.144.178.121:1337&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">clientId:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;clientId&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">        </span><span style="color: #001080">clientSecret:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;clientSecret&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    },</span>
+<span style="color: #000000">});</span>
+</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/gettokencreator.html">get<wbr>Token<wbr>Creator</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/index.html">index</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/interfaces.html">interfaces</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/spike.html">spike</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/spike_api.html">spike-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/validations.html">validations</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-namespace"><span class="tsd-kind-icon">Namespace</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
