@@ -94,3 +94,7 @@ const spike = new Spike({
     },
 });
 ```
+
+# API Documentation
+
+## Full API description is availible at [github.io](https://randomize163.github.io/spike-token-manager/)

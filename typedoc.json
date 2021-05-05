@@ -1,7 +1,7 @@
 {
-  "entryPoints": ["src/"],
+  "entryPoints": ["src/lib/"],
   "out": "docs",
-  "exclude": ["src/{tests,config,examples,utils}/**", "src/lib/{validations}.ts"],
+  "exclude": ["src/{tests,config,examples,utils}/**", "src/lib/validations.ts"],
   "excludePrivate": true,
   "excludeProtected": true
 }
