@@ -10,6 +10,15 @@
     "redis"
   ],
   "author": "Alexander Gurevich",
+  "homepage": "https://randomize163.github.io/spike-token-manager/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Randomize163/spike-token-manager.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Randomize163/spike-token-manager/issues",
+    "email": "guran1996@gmail.com"
+  },
   "main": "dist/lib/index.js",
   "types": "dist/lib/index.d.ts",
   "files": [
