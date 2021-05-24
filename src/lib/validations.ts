@@ -41,6 +41,8 @@ export const ioredisConfigSchema = Joi.object({
     enableReadyCheck: Joi.boolean(),
     enableOfflineQueue: Joi.boolean(),
     connectTimeout: Joi.number(),
+    disconnectTimeout: Joi.number().default(redis.disconnectTimeout),
+    commandTimeout: Joi.number().default(redis.commandTimeout),
     autoResubscribe: Joi.boolean(),
     autoResendUnfulfilledCommands: Joi.boolean(),
     // lazyConnect: Joi.boolean(), // Do not allow to set lazyConnect to work correctly with initialize()

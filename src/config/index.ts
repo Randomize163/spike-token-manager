@@ -20,6 +20,8 @@ const config = {
     },
     redis: {
         maxRetriesPerRequest: env.get('SPIKE_DEFAULT_REDIS_MAX_RETRIES_PER_REQUEST').default(3).asIntPositive(),
+        disconnectTimeout: env.get('SPIKE_DEFAULT_REDIS_DISCONNECT_TIMEOUT').default(3000).asIntPositive(),
+        commandTimeout: env.get('SPIKE_DEFAULT_REDIS_COMMAND_TIMEOUT').default(3000).asIntPositive(),
         retryStrategy: (retryCount: number) => {
             return Math.min(retryCount * 500, 2000);
         },
