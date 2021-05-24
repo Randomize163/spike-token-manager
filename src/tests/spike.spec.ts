@@ -1,4 +1,5 @@
 import * as Redis from 'ioredis';
+import * as jwt from 'jsonwebtoken';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { createSpikeMockImplementation } from './spikeApiMock';
 import { Spike } from '../lib';
@@ -6,6 +7,7 @@ import config from '../config';
 import { SpikeApi } from '../lib/spike-api';
 import { ILogger, IRedisOptions, ISpikeOptions } from '../lib/interfaces';
 import { FakeAxiosError } from './axios';
+import { trycatch } from '../utils';
 
 const {
     test: { spike: spikeConfig },
@@ -155,6 +157,43 @@ describe('Spike class tests', () => {
                     expect(token).toEqual(getLastTokenFromSpike());
                 });
             }
+        });
+
+        describe('Spike.getToken in parallel tests', () => {
+            it('should get token once in parallel', async () => {
+                const getAudience = (index: number) => `audience${index}`;
+                const audiencesCount = 10;
+                const parallelCallersCount = 50;
+
+                const promises: Promise<string>[] = [];
+                for (let i = 0; i < parallelCallersCount; i++) {
+                    const audienceIndex = i % audiencesCount;
+
+                    promises.push(spike.getToken(getAudience(audienceIndex)));
+                }
+
+                const { err, result } = await trycatch(() => Promise.all(promises));
+
+                if (publicKeyType === 'old') {
+                    expect(err).toBeInstanceOf(Error);
+                    return;
+                }
+
+                expect(result).toHaveLength(parallelCallersCount);
+
+                const tokens = result as string[];
+
+                expect(getTokenMock).toBeCalledTimes(audiencesCount);
+
+                for (let i = 0; i < tokens.length; i++) {
+                    const token = tokens[i];
+                    const audienceIndex = i % audiencesCount;
+
+                    const decodedToken = jwt.decode(token, { json: true });
+                    expect(decodedToken).not.toBe(null);
+                    expect(decodedToken!.aud).toEqual(getAudience(audienceIndex));
+                }
+            });
         });
     });
 });

@@ -10,6 +10,7 @@ import { ILogger, ISpikeOptions, ISpikeTokenParsed, IValidatedSpikeOptions } fro
 import { validateOptions } from './validations';
 
 import config from '../config';
+import DoOnce from '../utils/sync/limiter';
 
 const { spike: spikeConfig } = config;
 
@@ -27,6 +28,8 @@ export class Spike {
     private spikeTokens?: Map<string, string>;
 
     private initialized: boolean = false;
+
+    private doOnce = new DoOnce();
 
     constructor(options: ISpikeOptions) {
         this.options = validateOptions(options);
@@ -188,7 +191,11 @@ export class Spike {
         return this.redis.hget(this.redisKey, audience);
     }
 
-    private async updateToken(audience: string) {
+    private updateToken(audience: string) {
+        return this.doOnce.run(audience, () => this.updateTokenHelper(audience));
+    }
+
+    private async updateTokenHelper(audience: string) {
         const {
             spike: { clientId, clientSecret },
         } = this.options;

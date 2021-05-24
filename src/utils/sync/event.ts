@@ -1,12 +1,13 @@
 import { EventEmitter, once } from 'events';
 
-export class Event {
+export default class Event {
     private event: EventEmitter;
 
     private signaled: boolean = false;
 
     constructor() {
         this.event = new EventEmitter();
+        this.event.setMaxListeners(Infinity);
     }
 
     signal() {
