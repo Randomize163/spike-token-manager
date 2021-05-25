@@ -1,6 +1,6 @@
 {
   "name": "spike-token-manager",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Spike interface for JavaScript and TypeScript",
   "keywords": [
     "spike",
