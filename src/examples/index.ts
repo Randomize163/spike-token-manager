@@ -22,13 +22,20 @@ const main = async () => {
 
     await spike.initialize();
 
+    const parallelRequests = 20;
+
     let seconds = 0;
     for (;;) {
-        const { result: token, err } = await trycatch(() => spike.getToken('phonebook'));
+        const promises: Promise<string>[] = [];
+        for (let i = 0; i < parallelRequests; i++) {
+            promises.push(spike.getToken('rabaz'));
+        }
+
+        const { result: tokens, err } = await trycatch(() => Promise.all(promises));
         if (err) {
             console.error(`Get token failed with error: `, err);
         } else {
-            console.log(`Token after ${seconds++} seconds:`, token);
+            console.log(`Got ${parallelRequests} tokens in parallel. Token after ${seconds++} seconds:`, tokens[0]);
         }
 
         await sleep(1000);

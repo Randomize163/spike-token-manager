@@ -86,10 +86,10 @@ export const createSpikeMockImplementation = (mockedSpikeApi: MockedObject<typeo
     });
 
     mockedSpikeApi.mockImplementation(() => {
-        return ({
+        return {
             getToken: getTokenMock,
             getPublicKey: getPublicKeyMock,
-        } as unknown) as SpikeApi;
+        } as unknown as SpikeApi;
     });
 
     return {
