@@ -36,6 +36,7 @@ export const ioredisConfigSchema = Joi.object({
     noDelay: Joi.boolean(),
     connectionName: Joi.string(),
     db: Joi.number(),
+    username: Joi.string(),
     password: Joi.string(),
     dropBufferSupport: Joi.boolean(),
     enableReadyCheck: Joi.boolean(),
