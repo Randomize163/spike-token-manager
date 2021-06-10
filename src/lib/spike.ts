@@ -1,5 +1,4 @@
 import * as pRetry from 'p-retry';
-import * as Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import * as assert from 'assert';
 import * as fs from 'fs';
@@ -11,6 +10,9 @@ import { validateOptions } from './validations';
 
 import config from '../config';
 import DoOnce from '../utils/sync/limiter';
+import { Storage } from './storage/interface';
+import { LocalStorage } from './storage/local';
+import { IRedisStorageOptions, RedisStorage } from './storage/redis';
 
 const { spike: spikeConfig } = config;
 
@@ -19,13 +21,11 @@ export class Spike {
 
     private logger: ILogger;
 
-    private redis?: Redis.Redis;
-    private redisKey: string;
-
     private spikeApi: SpikeApi;
 
     private spikePublicKey: string;
-    private spikeTokens?: Map<string, string>;
+    private localStorage: Storage;
+    private remoteStorage?: Storage;
 
     private initialized: boolean = false;
 
@@ -39,11 +39,10 @@ export class Spike {
         this.logger = logger;
         this.spikeApi = new SpikeApi({ baseURL: spike.url });
 
+        this.localStorage = new LocalStorage();
+
         if (redis) {
-            this.createRedis();
-            this.redisKey = this.transformClientIdToRedisKey(spike.clientId);
-        } else {
-            this.spikeTokens = new Map();
+            this.createRedisStorage();
         }
     }
 
@@ -56,23 +55,21 @@ export class Spike {
 
         await this.updatePublicKey();
 
-        if (this.redis) {
-            await this.initializeRedis();
-        }
+        await this.localStorage.initialize();
+        await this.remoteStorage?.initialize();
 
         this.initialized = true;
 
         this.logger.info(`[Spike] Initialized successfully`);
     }
 
-    close() {
+    async close() {
         if (!this.isInitialized()) {
             return;
         }
 
-        if (this.redis) {
-            this.redis.disconnect();
-        }
+        await this.remoteStorage?.close();
+        await this.localStorage.close();
 
         this.initialized = false;
 
@@ -88,15 +85,12 @@ export class Spike {
             await this.initialize();
         }
 
-        const token = await this.getCurrentToken(audience);
-
-        if (token && this.isTokenValid(token, audience)) {
+        const token = await this.getActiveToken(audience);
+        if (token) {
             return token;
         }
 
-        await this.updateToken(audience);
-
-        const newToken = await this.getCurrentToken(audience);
+        const newToken = await this.updateToken(audience);
 
         assert(newToken);
         assert(this.isTokenValid(newToken, audience));
@@ -128,12 +122,6 @@ export class Spike {
         return jwt.verify(token, this.spikePublicKey, verifyOptions) as ISpikeTokenParsed;
     }
 
-    private async initializeRedis() {
-        assert(this.redis);
-
-        // no need for special initialization for now
-    }
-
     private async updatePublicKey() {
         const { publicKeyFullPath } = this.options.spike;
 
@@ -144,51 +132,30 @@ export class Spike {
         }
     }
 
-    private createRedis() {
+    private createRedisStorage() {
         assert(this.options.redis);
 
-        const { uri, tokenKeyPrefix, ...redisOptions } = this.options.redis;
+        const { keyPrefix, ...options } = this.options.redis;
+        const { clientId } = this.options.spike;
 
-        this.redis = new Redis(uri, redisOptions);
+        const redisStorageOptions: IRedisStorageOptions = { ...options, hashKeyName: `${keyPrefix}${clientId}` };
 
-        this.redis
-            .on('error', (error: Error) => {
-                this.logger.error(`[Spike] Got redis error: ${stringify(error)}`);
-            })
-            .on('connect', () => {
-                this.logger.info(`[Spike] Connected to Redis`);
-            })
-            .on('ready', () => {
-                this.logger.info(`[Spike] Redis is ready to receive commands`);
-            })
-            .on('reconnecting', (timeout: number) => {
-                this.logger.info(`[Spike] Redis reconnecting in ${timeout} ms`);
-            });
+        this.remoteStorage = new RedisStorage(redisStorageOptions, this.logger);
     }
 
-    private async getCurrentToken(audience: string) {
-        if (!this.redis) {
-            assert(this.spikeTokens);
-            return this.spikeTokens.get(audience);
+    private async getActiveToken(audience: string) {
+        const token = await this.localStorage.get(audience);
+        if (token && this.isTokenValid(token, audience)) {
+            return token;
         }
 
-        return this.getTokenFromRedis(audience);
-    }
+        const remoteToken = await this.remoteStorage?.get(audience);
+        if (remoteToken && this.isTokenValid(remoteToken, audience)) {
+            await this.localStorage.set(audience, remoteToken);
+            return remoteToken;
+        }
 
-    private transformClientIdToRedisKey(clientId: string) {
-        const { redis } = this.options;
-        assert(redis);
-
-        return `${redis.tokenKeyPrefix}${clientId}`;
-    }
-
-    private getTokenFromRedis(audience: string) {
-        const { redis } = this.options;
-
-        assert(redis);
-        assert(this.redis);
-
-        return this.redis.hget(this.redisKey, audience);
+        return null;
     }
 
     private updateToken(audience: string) {
@@ -208,10 +175,10 @@ export class Spike {
 
         this.logger.debug(`[Spike] Updating token for audience: ${audience}`);
 
-        const token = await this.getTokenHelper(getTokenOptions);
+        const token = await this.issueNewToken(getTokenOptions);
         if (this.isTokenValid(token, audience)) {
             await this.saveToken(token, audience);
-            return;
+            return token;
         }
 
         this.logger.warn(`[Spike] Token for audience ${audience} received from Spike is not valid. Retry after updating public key.`);
@@ -219,7 +186,7 @@ export class Spike {
         await this.updatePublicKey();
         if (this.isTokenValid(token, audience)) {
             await this.saveToken(token, audience);
-            return;
+            return token;
         }
 
         this.logger.error(`[Spike] Token for audience ${audience} received from Spike is not valid according to both old and updated public keys`);
@@ -228,20 +195,12 @@ export class Spike {
     }
 
     private async saveToken(token: string, audience: string) {
-        if (!this.redis) {
-            assert(this.spikeTokens);
-            this.spikeTokens.set(audience, token);
-            return;
-        }
+        await this.localStorage.set(audience, token);
 
-        const { redis } = this.options;
-
-        assert(redis);
-
-        await this.redis.hset(this.redisKey, audience, token);
+        await this.remoteStorage?.set(audience, token);
     }
 
-    private getTokenHelper(getTokenOptions: IGetTokenOptions): Promise<string> {
+    private issueNewToken(getTokenOptions: IGetTokenOptions): Promise<string> {
         return this.spikeRequestWithRetryHelper(() => this.spikeApi.getToken(getTokenOptions));
     }
 

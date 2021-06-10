@@ -87,7 +87,7 @@ describe('Spike class tests', () => {
         });
 
         afterEach(() => {
-            spike.close();
+            return spike.close();
         });
 
         describe('Spike.initialize() tests', () => {
@@ -100,8 +100,8 @@ describe('Spike class tests', () => {
         describe('Spike.close() tests', () => {
             it('should handle double close', async () => {
                 await spike.initialize();
-                spike.close();
-                spike.close();
+                await spike.close();
+                await spike.close();
             });
         });
 
