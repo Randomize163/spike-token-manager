@@ -1,9 +1,9 @@
 import { RedisStorage } from '../lib/storage/redis';
-import { Storage } from '../lib/storage/interface';
+import { IStorage } from '../lib/storage/interface';
 
 describe('redis storage tests', () => {
     describe('connection tests', () => {
-        let storage: Storage;
+        let storage: IStorage;
 
         afterEach(async () => {
             if (storage) {

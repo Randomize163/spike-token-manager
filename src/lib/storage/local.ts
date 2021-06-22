@@ -1,6 +1,6 @@
-import { Storage } from './interface';
+import { IStorage } from './interface';
 
-export class LocalStorage extends Storage {
+export class LocalStorage extends IStorage {
     private map = new Map<string, string>();
 
     // eslint-disable-next-line class-methods-use-this

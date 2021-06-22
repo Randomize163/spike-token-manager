@@ -3,7 +3,7 @@ import * as Redis from 'ioredis';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { EventEmitter } from 'stream';
 import { RedisStorage } from '../lib/storage/redis';
-import { Storage } from '../lib/storage/interface';
+import { IStorage } from '../lib/storage/interface';
 
 import config from '../config';
 
@@ -23,7 +23,7 @@ class RedisMock extends EventEmitter {
 
 describe('redis storage tests', () => {
     describe('connection tests', () => {
-        let storage: Storage;
+        let storage: IStorage;
 
         afterEach(async () => {
             if (storage) {

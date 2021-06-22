@@ -66,7 +66,7 @@ export const getTokenCreator = (options: IDepricatedSpikeOptions) => {
 
         spikeOptions.redis = {
             uri: redisHost,
-            tokenKeyPrefix: tokenRedisKeyName,
+            keyPrefix: tokenRedisKeyName,
         };
     }
 

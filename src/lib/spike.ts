@@ -10,7 +10,7 @@ import { validateOptions } from './validations';
 
 import config from '../config';
 import DoOnce from '../utils/sync/limiter';
-import { Storage } from './storage/interface';
+import { IStorage } from './storage/interface';
 import { LocalStorage } from './storage/local';
 import { IRedisStorageOptions, RedisStorage } from './storage/redis';
 
@@ -24,8 +24,8 @@ export class Spike {
     private spikeApi: SpikeApi;
 
     private spikePublicKey: string;
-    private localStorage: Storage;
-    private remoteStorage?: Storage;
+    private localStorage: IStorage;
+    private remoteStorage?: IStorage;
 
     private initialized: boolean = false;
 
@@ -135,10 +135,9 @@ export class Spike {
     private createRedisStorage() {
         assert(this.options.redis);
 
-        const { keyPrefix, ...options } = this.options.redis;
         const { clientId } = this.options.spike;
 
-        const redisStorageOptions: IRedisStorageOptions = { ...options, hashKeyName: `${keyPrefix}${clientId}` };
+        const redisStorageOptions: IRedisStorageOptions = { ...this.options.redis, hashKeyName: `${clientId}` };
 
         this.remoteStorage = new RedisStorage(redisStorageOptions, this.logger);
     }

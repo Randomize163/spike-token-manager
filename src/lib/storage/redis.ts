@@ -2,11 +2,11 @@ import * as Redis from 'ioredis';
 import { stringify, trycatch } from '../../utils';
 import { ILogger, IRedisOptions } from '../interfaces';
 
-import { Storage } from './interface';
+import { IStorage } from './interface';
 
-export type IRedisStorageOptions = Omit<IRedisOptions, 'tokenKeyPrefix'> & { hashKeyName: string };
+export type IRedisStorageOptions = IRedisOptions & { hashKeyName: string };
 
-export class RedisStorage implements Storage {
+export class RedisStorage implements IStorage {
     private redis: Redis.Redis;
 
     constructor(private options: IRedisStorageOptions, private logger: ILogger = console) {
@@ -29,7 +29,6 @@ export class RedisStorage implements Storage {
             });
     }
 
-    // eslint-disable-next-line class-methods-use-this
     public async initialize() {
         const { err } = await trycatch(() => this.redis.connect());
         if (!err) {

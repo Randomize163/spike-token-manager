@@ -1,4 +1,4 @@
-export abstract class Storage {
+export abstract class IStorage {
     abstract initialize(): Promise<void>;
 
     abstract close(): Promise<void>;

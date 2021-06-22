@@ -48,7 +48,7 @@ export const ioredisConfigSchema = Joi.object({
     autoResendUnfulfilledCommands: Joi.boolean(),
     // lazyConnect: Joi.boolean(), // Do not allow to set lazyConnect to work correctly with initialize()
     tls: Joi.object(),
-    keyPrefix: Joi.string(),
+    keyPrefix: Joi.string().allow('').default('spike-tokens-for-clientId-'),
     retryStrategy: Joi.function()
         .arity(1)
         .default(() => redis.retryStrategy),
@@ -63,7 +63,6 @@ export const ioredisConfigSchema = Joi.object({
 
 export const redisConfigSchema = ioredisConfigSchema.keys({
     uri: Joi.string().uri().required(),
-    tokenKeyPrefix: Joi.string().allow('').default('spike-tokens-for-clientId-'),
 });
 
 export const loggerSchema = Joi.object({

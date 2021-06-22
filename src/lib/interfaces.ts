@@ -3,7 +3,6 @@ import * as pRetry from 'p-retry';
 
 export interface IRedisOptions extends Omit<Redis.RedisOptions, 'lazyConnect'> {
     uri: string;
-    tokenKeyPrefix?: string;
 }
 
 export type ISpikeRetryOptions = Omit<pRetry.Options, 'unref' | 'onFailedAttempt'>;
