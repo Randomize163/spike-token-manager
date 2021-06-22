@@ -1,5 +1,5 @@
 import * as Redis from 'ioredis';
-import { stringify } from '../../utils';
+import { stringify, trycatch } from '../../utils';
 import { ILogger, IRedisOptions } from '../interfaces';
 
 import { Storage } from './interface';
@@ -9,10 +9,10 @@ export type IRedisStorageOptions = Omit<IRedisOptions, 'tokenKeyPrefix'> & { has
 export class RedisStorage implements Storage {
     private redis: Redis.Redis;
 
-    constructor(private options: IRedisStorageOptions, private logger: ILogger) {
+    constructor(private options: IRedisStorageOptions, private logger: ILogger = console) {
         const { uri, hashKeyName, ...redisOptions } = options;
 
-        this.redis = new Redis(uri, redisOptions);
+        this.redis = new Redis(uri, { ...redisOptions, lazyConnect: true });
 
         this.redis
             .on('error', (error: Error) => {
@@ -31,7 +31,14 @@ export class RedisStorage implements Storage {
 
     // eslint-disable-next-line class-methods-use-this
     public async initialize() {
-        // no need for special initialization for now
+        const { err } = await trycatch(() => this.redis.connect());
+        if (!err) {
+            return;
+        }
+
+        await new Promise((resolve) => {
+            this.redis.once('ready', resolve);
+        });
     }
 
     public async close() {

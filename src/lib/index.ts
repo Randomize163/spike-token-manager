@@ -7,6 +7,7 @@ function mainExport(options: IDepricatedSpikeOptions) {
     return getTokenCreator(options);
 }
 
+/* istanbul ignore next */
 // eslint-disable-next-line no-redeclare
 namespace mainExport {
     export type Spike = SpikeAlias;

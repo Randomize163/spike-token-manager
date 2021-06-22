@@ -157,6 +157,26 @@ describe('Spike class tests', () => {
                     expect(token).toEqual(getLastTokenFromSpike());
                 });
             }
+
+            if (useRedis) {
+                it('should get remote token if it already exists', async () => {
+                    // @ts-ignore
+                    const { options } = spike;
+
+                    const { keyPrefix } = options.redis!;
+                    const { clientId } = options.spike;
+
+                    const audience = 'some-test-audience';
+                    const token = getTokenMock({ clientId, clientSecret: 'secret', audience });
+
+                    await redis.hset(`${keyPrefix}${clientId}`, audience, token);
+
+                    const receivedToken = await spike.getToken(audience);
+                    expect(receivedToken).toEqual(token);
+
+                    expect(getTokenMock).toBeCalledTimes(1);
+                });
+            }
         });
 
         describe('Spike.getToken in parallel tests', () => {
