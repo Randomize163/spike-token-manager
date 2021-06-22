@@ -34,7 +34,7 @@ const config = {
     },
     test: {
         spike: {
-            url: env.get('SPIKE_TEST_SPIKE_URL').default('https://51.144.178.121:1337/').asString(),
+            url: env.get('SPIKE_TEST_SPIKE_URL').default('https://ospike.northeurope.cloudapp.azure.com/').asString(),
             clientId: env.get('SPIKE_TEST_SPIKE_CLIENT_ID').default('9FXuQkn7m7YNjecKufGAQV2HR_Lcu7PDNhNf31Od').asString(),
             clientSecret: env
                 .get('SPIKE_TEST_SPIKE_CLIENT_SECRET')
