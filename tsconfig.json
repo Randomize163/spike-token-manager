@@ -19,6 +19,7 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,
+    "skipLibCheck": true,
     "outDir": "./dist/"
   },
   "include": ["src/**/*"]

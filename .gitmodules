@@ -1,0 +1,3 @@
+[submodule "external/ioredis"]
+	path = external/ioredis
+	url = https://github.com/Randomize163/ioredis.git
