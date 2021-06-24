@@ -32,7 +32,13 @@ export const ioredisConfigSchema = Joi.object({
     host: Joi.string(),
     family: Joi.string(),
     path: Joi.string(),
-    keepAlive: Joi.number(),
+
+    // keep-alive and tcp options
+    keepAliveInterval: Joi.number().integer().default(1000),
+    keepAliveInitialDelay: Joi.number().integer().default(1000),
+    keepAliveProbesCount: Joi.number().integer().default(3),
+    tcpUserTimeout: Joi.number().integer().default(1000),
+
     noDelay: Joi.boolean(),
     connectionName: Joi.string(),
     db: Joi.number(),

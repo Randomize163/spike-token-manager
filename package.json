@@ -23,7 +23,8 @@
   "types": "dist/lib/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*"
+    "src/**/*",
+    "external/ioredis/**/*"
   ],
   "scripts": {
     "start": "node --async-stack-traces ./dist/examples/index.js",

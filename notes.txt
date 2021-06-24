@@ -1,0 +1,5 @@
+# interrupt connectivity to redis
+sudo iptables -A INPUT -p tcp --dport 6379 -j DROP
+
+# allow packets to redis
+sudo iptables -D INPUT -p tcp --dport 6379 -j DROP

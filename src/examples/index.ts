@@ -1,22 +1,29 @@
 /* eslint-disable no-console */
 import { Spike } from '../lib/spike';
 import { trycatch } from '../utils';
+import config from '../config';
 
-const sleep = async (ms) => {
+const sleep = async (ms: number) => {
     return new Promise((resolve, _reject) => {
         setTimeout(resolve, ms);
     });
 };
 
 const main = async () => {
+    const { url, clientId, clientSecret } = config.test.spike;
+
     const spike = new Spike({
         spike: {
-            url: 'https://51.144.178.121:1337',
-            clientId: '9FXuQkn7m7YNjecKufGAQV2HR_Lcu7PDNhNf31Od',
-            clientSecret: 'GxE6OodYjrFNdSwe4tI3zJJ5OhbNpgMc8toWyPKJ~OfkR_f21eCDyCi8CN~l709uYBLfdiYWiF8ryjlRZ_cTap108wmSMaWXdZn5',
+            url,
+            clientId,
+            clientSecret,
         },
         redis: {
             uri: 'redis://localhost',
+            keepAliveInterval: 1000,
+            keepAliveInitialDelay: 1000,
+            keepAliveProbesCount: 3,
+            tcpUserTimeout: 1000,
         },
     });
 
