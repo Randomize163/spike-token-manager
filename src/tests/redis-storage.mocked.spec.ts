@@ -1,7 +1,7 @@
 /* eslint-disable class-methods-use-this */
-import * as Redis from 'ioredis';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { EventEmitter } from 'stream';
+import Redis from '../utils/redis';
 import { RedisStorage } from '../lib/storage/redis';
 import { IStorage } from '../lib/storage/interface';
 

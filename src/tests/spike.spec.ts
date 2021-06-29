@@ -1,6 +1,6 @@
-import * as Redis from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import { mocked } from 'ts-jest/dist/utils/testing';
+import Redis from '../utils/redis';
 import { createSpikeMockImplementation } from './spikeApiMock';
 import { Spike } from '../lib';
 import config from '../config';
@@ -209,7 +209,7 @@ describe('Spike class tests', () => {
                     const token = tokens[i];
                     const audienceIndex = i % audiencesCount;
 
-                    const decodedToken = jwt.decode(token, { json: true });
+                    const decodedToken = jwt.decode(token, { json: true }) as jwt.JwtPayload;
                     expect(decodedToken).not.toBe(null);
                     expect(decodedToken!.aud).toEqual(getAudience(audienceIndex));
                 }

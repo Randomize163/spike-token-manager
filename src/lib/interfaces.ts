@@ -1,8 +1,12 @@
-import * as Redis from 'ioredis';
 import * as pRetry from 'p-retry';
+import Redis from '../utils/redis';
 
 export interface IRedisOptions extends Omit<Redis.RedisOptions, 'lazyConnect'> {
     uri: string;
+    keepAliveInterval?: number;
+    keepAliveInitialDelay?: number;
+    keepAliveProbesCount?: number;
+    tcpUserTimeout?: number;
 }
 
 export type ISpikeRetryOptions = Omit<pRetry.Options, 'unref' | 'onFailedAttempt'>;

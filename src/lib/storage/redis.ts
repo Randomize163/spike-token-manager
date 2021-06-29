@@ -1,4 +1,4 @@
-import * as Redis from 'ioredis';
+import Redis from '../../utils/redis';
 import { stringify, trycatch } from '../../utils';
 import { ILogger, IRedisOptions } from '../interfaces';
 

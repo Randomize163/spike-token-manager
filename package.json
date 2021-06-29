@@ -1,6 +1,6 @@
 {
   "name": "spike-token-manager",
-  "version": "0.0.5",
+  "version": "0.0.6-beta.0",
   "description": "Spike interface for JavaScript and TypeScript",
   "keywords": [
     "spike",
@@ -23,8 +23,7 @@
   "types": "dist/lib/index.d.ts",
   "files": [
     "dist/**/*",
-    "src/**/*",
-    "external/ioredis/**/*"
+    "src/**/*"
   ],
   "scripts": {
     "start": "node --async-stack-traces ./dist/examples/index.js",
@@ -48,12 +47,13 @@
   "dependencies": {
     "axios": "^0.21.1",
     "env-var": "^7.0.1",
-    "ioredis": "file:external/ioredis",
+    "ioredis": "github:Randomize163/ioredis",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
     "p-retry": "^4.5.0"
   },
   "devDependencies": {
+    "@types/ioredis": "^4.26.4",
     "@types/jest": "^26.0.23",
     "@types/jsonwebtoken": "^8.5.1",
     "@types/node": "^15.6.0",
