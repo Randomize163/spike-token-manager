@@ -3,3 +3,9 @@ sudo iptables -A INPUT -p tcp --dport 6379 -j DROP
 
 # allow packets to redis
 sudo iptables -D INPUT -p tcp --dport 6379 -j DROP
+
+# install knetstat module
+sudo insmod knetstat.ko
+
+# get socket settings
+cat /proc/net/tcpstat | grep 6379
