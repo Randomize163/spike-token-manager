@@ -102,6 +102,9 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#family" class="tsd-kind-icon">family</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#host" class="tsd-kind-icon">host</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#keepalive" class="tsd-kind-icon">keep<wbr>Alive</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="interfaces.iredisoptions.html#keepaliveinitialdelay" class="tsd-kind-icon">keep<wbr>Alive<wbr>Initial<wbr>Delay</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="interfaces.iredisoptions.html#keepaliveinterval" class="tsd-kind-icon">keep<wbr>Alive<wbr>Interval</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="interfaces.iredisoptions.html#keepaliveprobescount" class="tsd-kind-icon">keep<wbr>Alive<wbr>Probes<wbr>Count</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#keyprefix" class="tsd-kind-icon">key<wbr>Prefix</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#maxretriesperrequest" class="tsd-kind-icon">max<wbr>Retries<wbr>Per<wbr>Request</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#maxscriptscachingtime" class="tsd-kind-icon">max<wbr>Scripts<wbr>Caching<wbr>Time</a></li>
@@ -120,8 +123,8 @@
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#sentinels" class="tsd-kind-icon">sentinels</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#showfriendlyerrorstack" class="tsd-kind-icon">show<wbr>Friendly<wbr>Error<wbr>Stack</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#stringnumbers" class="tsd-kind-icon">string<wbr>Numbers</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="interfaces.iredisoptions.html#tcpusertimeout" class="tsd-kind-icon">tcp<wbr>User<wbr>Timeout</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#tls" class="tsd-kind-icon">tls</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="interfaces.iredisoptions.html#tokenkeyprefix" class="tsd-kind-icon">token<wbr>Key<wbr>Prefix</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#updatesentinels" class="tsd-kind-icon">update<wbr>Sentinels</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="interfaces.iredisoptions.html#uri" class="tsd-kind-icon">uri</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external"><a href="interfaces.iredisoptions.html#username" class="tsd-kind-icon">username</a></li>
@@ -371,6 +374,36 @@
 							<p>TCP KeepAlive on the socket with a X ms delay before start. Set to a non-number value to disable keepAlive.</p>
 						</div>
 					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="keepaliveinitialdelay" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keep<wbr>Alive<wbr>Initial<wbr>Delay</h3>
+					<div class="tsd-signature tsd-kind-icon">keep<wbr>Alive<wbr>Initial<wbr>Delay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/interfaces.ts#L7">src/lib/interfaces.ts:7</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="keepaliveinterval" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keep<wbr>Alive<wbr>Interval</h3>
+					<div class="tsd-signature tsd-kind-icon">keep<wbr>Alive<wbr>Interval<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/interfaces.ts#L6">src/lib/interfaces.ts:6</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="keepaliveprobescount" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> keep<wbr>Alive<wbr>Probes<wbr>Count</h3>
+					<div class="tsd-signature tsd-kind-icon">keep<wbr>Alive<wbr>Probes<wbr>Count<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/interfaces.ts#L8">src/lib/interfaces.ts:8</a></li>
+						</ul>
+					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="keyprefix" class="tsd-anchor"></a>
@@ -638,6 +671,16 @@
 						</div>
 					</div>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="tcpusertimeout" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> tcp<wbr>User<wbr>Timeout</h3>
+					<div class="tsd-signature tsd-kind-icon">tcp<wbr>User<wbr>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/interfaces.ts#L9">src/lib/interfaces.ts:9</a></li>
+						</ul>
+					</aside>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 					<a name="tls" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagOptional">Optional</span> tls</h3>
@@ -646,16 +689,6 @@
 						<p>Inherited from Omit.tls</p>
 						<ul>
 							<li>Defined in node_modules/@types/ioredis/index.d.ts:1790</li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="tokenkeyprefix" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagOptional">Optional</span> token<wbr>Key<wbr>Prefix</h3>
-					<div class="tsd-signature tsd-kind-icon">token<wbr>Key<wbr>Prefix<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/d3159a8/src/lib/interfaces.ts#L6">src/lib/interfaces.ts:6</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -682,7 +715,7 @@
 					<div class="tsd-signature tsd-kind-icon">uri<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/d3159a8/src/lib/interfaces.ts#L5">src/lib/interfaces.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/interfaces.ts#L5">src/lib/interfaces.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -818,6 +851,15 @@
 					<li class=" tsd-kind-module">
 						<a href="../modules/spike_api.html">spike-<wbr>api</a>
 					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/storage_interface.html">storage/interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/storage_local.html">storage/local</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/storage_redis.html">storage/redis</a>
+					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
@@ -871,6 +913,15 @@
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="interfaces.iredisoptions.html#keepalive" class="tsd-kind-icon">keep<wbr>Alive</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="interfaces.iredisoptions.html#keepaliveinitialdelay" class="tsd-kind-icon">keep<wbr>Alive<wbr>Initial<wbr>Delay</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="interfaces.iredisoptions.html#keepaliveinterval" class="tsd-kind-icon">keep<wbr>Alive<wbr>Interval</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="interfaces.iredisoptions.html#keepaliveprobescount" class="tsd-kind-icon">keep<wbr>Alive<wbr>Probes<wbr>Count</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="interfaces.iredisoptions.html#keyprefix" class="tsd-kind-icon">key<wbr>Prefix</a>
@@ -926,11 +977,11 @@
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="interfaces.iredisoptions.html#stringnumbers" class="tsd-kind-icon">string<wbr>Numbers</a>
 							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="interfaces.iredisoptions.html#tcpusertimeout" class="tsd-kind-icon">tcp<wbr>User<wbr>Timeout</a>
+							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="interfaces.iredisoptions.html#tls" class="tsd-kind-icon">tls</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="interfaces.iredisoptions.html#tokenkeyprefix" class="tsd-kind-icon">token<wbr>Key<wbr>Prefix</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-interface tsd-is-inherited tsd-is-external">
 								<a href="interfaces.iredisoptions.html#updatesentinels" class="tsd-kind-icon">update<wbr>Sentinels</a>

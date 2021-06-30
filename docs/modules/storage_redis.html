@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>IGetTokenOptions | spike-token-manager</title>
+	<title>storage/redis | spike-token-manager</title>
 	<meta name="description" content="Documentation for spike-token-manager">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -55,71 +55,44 @@
 					<a href="../modules.html">spike-token-manager</a>
 				</li>
 				<li>
-					<a href="../modules/spike_api.html">spike-api</a>
-				</li>
-				<li>
-					<a href="spike_api.igettokenoptions.html">IGetTokenOptions</a>
+					<a href="storage_redis.html">storage/redis</a>
 				</li>
 			</ul>
-			<h1>Interface IGetTokenOptions</h1>
+			<h1>Module storage/redis</h1>
 		</div>
 	</div>
 </header>
 <div class="container container-main">
 	<div class="row">
 		<div class="col-8 col-content">
-			<section class="tsd-panel tsd-hierarchy">
-				<h3>Hierarchy</h3>
-				<ul class="tsd-hierarchy">
-					<li>
-						<span class="target">IGetTokenOptions</span>
-					</li>
-				</ul>
-			</section>
 			<section class="tsd-panel-group tsd-index-group">
 				<h2>Index</h2>
 				<section class="tsd-panel tsd-index-panel">
 					<div class="tsd-index-content">
 						<section class="tsd-index-section ">
-							<h3>Properties</h3>
+							<h3>Classes</h3>
 							<ul class="tsd-index-list">
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="spike_api.igettokenoptions.html#audience" class="tsd-kind-icon">audience</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="spike_api.igettokenoptions.html#clientid" class="tsd-kind-icon">client<wbr>Id</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="spike_api.igettokenoptions.html#clientsecret" class="tsd-kind-icon">client<wbr>Secret</a></li>
+								<li class="tsd-kind-class tsd-parent-kind-module"><a href="../classes/storage_redis.redisstorage.html" class="tsd-kind-icon">Redis<wbr>Storage</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Type aliases</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-type-alias tsd-parent-kind-module"><a href="storage_redis.html#iredisstorageoptions" class="tsd-kind-icon">IRedis<wbr>Storage<wbr>Options</a></li>
 							</ul>
 						</section>
 					</div>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
-				<h2>Properties</h2>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="audience" class="tsd-anchor"></a>
-					<h3>audience</h3>
-					<div class="tsd-signature tsd-kind-icon">audience<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+				<h2>Type aliases</h2>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias tsd-parent-kind-module">
+					<a name="iredisstorageoptions" class="tsd-anchor"></a>
+					<h3>IRedis<wbr>Storage<wbr>Options</h3>
+					<div class="tsd-signature tsd-kind-icon">IRedis<wbr>Storage<wbr>Options<span class="tsd-signature-symbol">:</span> <a href="../interfaces/interfaces.iredisoptions.html" class="tsd-signature-type" data-tsd-kind="Interface">IRedisOptions</a><span class="tsd-signature-symbol"> &amp; </span><span class="tsd-signature-symbol">{ </span>hashKeyName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/spike-api.ts#L9">src/lib/spike-api.ts:9</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="clientid" class="tsd-anchor"></a>
-					<h3>client<wbr>Id</h3>
-					<div class="tsd-signature tsd-kind-icon">client<wbr>Id<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/spike-api.ts#L10">src/lib/spike-api.ts:10</a></li>
-						</ul>
-					</aside>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
-					<a name="clientsecret" class="tsd-anchor"></a>
-					<h3>client<wbr>Secret</h3>
-					<div class="tsd-signature tsd-kind-icon">client<wbr>Secret<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-					<aside class="tsd-sources">
-						<ul>
-							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/spike-api.ts#L11">src/lib/spike-api.ts:11</a></li>
+							<li>Defined in <a href="https://github.com/Randomize163/spike-token-manager/blob/3dac45f/src/lib/storage/redis.ts#L7">src/lib/storage/redis.ts:7</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -132,54 +105,39 @@
 						<a href="../modules.html">Exports</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/gettokencreator.html">get<wbr>Token<wbr>Creator</a>
+						<a href="gettokencreator.html">get<wbr>Token<wbr>Creator</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/index.html">index</a>
+						<a href="index.html">index</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/interfaces.html">interfaces</a>
+						<a href="interfaces.html">interfaces</a>
 					</li>
 					<li class=" tsd-kind-module">
-						<a href="../modules/spike.html">spike</a>
+						<a href="spike.html">spike</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="spike_api.html">spike-<wbr>api</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="storage_interface.html">storage/interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="storage_local.html">storage/local</a>
 					</li>
 					<li class="current tsd-kind-module">
-						<a href="../modules/spike_api.html">spike-<wbr>api</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/storage_interface.html">storage/interface</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/storage_local.html">storage/local</a>
-					</li>
-					<li class=" tsd-kind-module">
-						<a href="../modules/storage_redis.html">storage/redis</a>
+						<a href="storage_redis.html">storage/redis</a>
 					</li>
 				</ul>
 			</nav>
 			<nav class="tsd-navigation secondary menu-sticky">
 				<ul class="before-current">
 					<li class=" tsd-kind-class tsd-parent-kind-module">
-						<a href="../classes/spike_api.spikeapi.html" class="tsd-kind-icon">Spike<wbr>Api</a>
+						<a href="../classes/storage_redis.redisstorage.html" class="tsd-kind-icon">Redis<wbr>Storage</a>
 					</li>
-				</ul>
-				<ul class="current">
-					<li class="current tsd-kind-interface tsd-parent-kind-module">
-						<a href="spike_api.igettokenoptions.html" class="tsd-kind-icon">IGet<wbr>Token<wbr>Options</a>
-						<ul>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="spike_api.igettokenoptions.html#audience" class="tsd-kind-icon">audience</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="spike_api.igettokenoptions.html#clientid" class="tsd-kind-icon">client<wbr>Id</a>
-							</li>
-							<li class=" tsd-kind-property tsd-parent-kind-interface">
-								<a href="spike_api.igettokenoptions.html#clientsecret" class="tsd-kind-icon">client<wbr>Secret</a>
-							</li>
-						</ul>
+					<li class=" tsd-kind-type-alias tsd-parent-kind-module">
+						<a href="storage_redis.html#iredisstorageoptions" class="tsd-kind-icon">IRedis<wbr>Storage<wbr>Options</a>
 					</li>
-				</ul>
-				<ul class="after-current">
 				</ul>
 			</nav>
 		</div>
@@ -196,7 +154,6 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
-				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
